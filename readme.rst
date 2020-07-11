@@ -7,7 +7,6 @@ Application Point Of Sale, use Codeigniter 3 PHP Framework.
 *******************
 Application Interface
 *******************
-![](/assets/ss/login.png)
 
 *********
 Resources
