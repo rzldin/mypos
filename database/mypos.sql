@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jul 11, 2020 at 06:06 AM
+-- Generation Time: Jul 12, 2020 at 08:26 PM
 -- Server version: 10.4.11-MariaDB
 -- PHP Version: 7.4.5
 
@@ -77,7 +77,38 @@ CREATE TABLE `p_category` (
 
 INSERT INTO `p_category` (`category_id`, `name`, `created`, `updated`) VALUES
 (2, 'Makanan', '2020-07-10 23:41:35', NULL),
-(3, 'Minuman', '2020-07-10 23:41:45', NULL);
+(3, 'Minuman', '2020-07-10 23:41:45', NULL),
+(4, 'ATK', '2020-07-12 13:29:18', NULL),
+(5, 'Pakaian', '2020-07-12 15:34:56', NULL);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `p_item`
+--
+
+CREATE TABLE `p_item` (
+  `item_id` int(11) NOT NULL,
+  `barcode` varchar(100) DEFAULT NULL,
+  `name` varchar(100) DEFAULT NULL,
+  `category_id` int(11) NOT NULL,
+  `unit_id` int(11) NOT NULL,
+  `price` int(11) DEFAULT NULL,
+  `stock` int(10) NOT NULL DEFAULT 0,
+  `gambar` varchar(255) DEFAULT NULL,
+  `created` datetime NOT NULL DEFAULT current_timestamp(),
+  `updated` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `p_item`
+--
+
+INSERT INTO `p_item` (`item_id`, `barcode`, `name`, `category_id`, `unit_id`, `price`, `stock`, `gambar`, `created`, `updated`) VALUES
+(13, 'A001', 'Baju Batik', 5, 2, 10000, 0, 'Product-200712-5c4dee4425.jpeg', '2020-07-13 00:29:23', '2020-07-12 20:01:27'),
+(14, 'J002', 'Sapi Galak', 2, 2, 10000, 0, 'Product-200712-915638c1bc.png', '2020-07-13 00:29:54', NULL),
+(15, 'B001', 'Kambing Etawa', 2, 2, 1909090, 0, 'Product-200712-88b1791df9.jpg', '2020-07-13 00:30:19', '2020-07-12 19:59:48'),
+(16, 'C001', 'Bakso', 2, 2, 10000, 0, 'default.png', '2020-07-13 01:03:26', '2020-07-12 20:14:46');
 
 -- --------------------------------------------------------
 
@@ -97,7 +128,10 @@ CREATE TABLE `p_unit` (
 --
 
 INSERT INTO `p_unit` (`unit_id`, `name`, `created`, `updated`) VALUES
-(2, 'Kilogram', '2020-07-10 23:42:52', NULL);
+(2, 'Kilogram', '2020-07-10 23:42:52', NULL),
+(4, 'Buah', '2020-07-13 00:57:31', NULL),
+(5, 'Pack', '2020-07-13 00:57:44', NULL),
+(6, 'Lusin', '2020-07-13 00:57:53', NULL);
 
 -- --------------------------------------------------------
 
@@ -169,6 +203,15 @@ ALTER TABLE `p_category`
   ADD PRIMARY KEY (`category_id`);
 
 --
+-- Indexes for table `p_item`
+--
+ALTER TABLE `p_item`
+  ADD PRIMARY KEY (`item_id`),
+  ADD UNIQUE KEY `barcode` (`barcode`),
+  ADD KEY `category_id` (`category_id`),
+  ADD KEY `unit_id` (`unit_id`);
+
+--
 -- Indexes for table `p_unit`
 --
 ALTER TABLE `p_unit`
@@ -206,13 +249,19 @@ ALTER TABLE `customer`
 -- AUTO_INCREMENT for table `p_category`
 --
 ALTER TABLE `p_category`
-  MODIFY `category_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `category_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
+-- AUTO_INCREMENT for table `p_item`
+--
+ALTER TABLE `p_item`
+  MODIFY `item_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- AUTO_INCREMENT for table `p_unit`
 --
 ALTER TABLE `p_unit`
-  MODIFY `unit_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `unit_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `supplier`
@@ -225,6 +274,17 @@ ALTER TABLE `supplier`
 --
 ALTER TABLE `user`
   MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
+
+--
+-- Constraints for dumped tables
+--
+
+--
+-- Constraints for table `p_item`
+--
+ALTER TABLE `p_item`
+  ADD CONSTRAINT `p_item_ibfk_1` FOREIGN KEY (`category_id`) REFERENCES `p_category` (`category_id`),
+  ADD CONSTRAINT `p_item_ibfk_2` FOREIGN KEY (`unit_id`) REFERENCES `p_unit` (`unit_id`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

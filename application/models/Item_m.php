@@ -6,18 +6,28 @@ class Item_m extends CI_Model
 
     public function get($id = null)
     {
-        $this->db->select();
+        $this->db->select('p_item.*, p_item.stock,  p_category.name as name_category, p_unit.name as name_unit');
         $this->db->from('p_item');
+        $this->db->join('p_category', 'p_item.category_id = p_category.category_id');
+        $this->db->join('p_unit', 'p_item.unit_id = p_unit.unit_id');
         if ($id != null) {
             $this->db->where('item_id', $id);
         }
+        $this->db->order_by('barcode', 'ASC');
         $query = $this->db->get();
         return $query;
     }
 
     public function save($post)
     {
-        $data['name'] = $this->input->post('name');
+        $data = [
+            'barcode' => $post['barcode'],
+            'name' => $post['nama_produk'],
+            'category_id' => $post['category'],
+            'unit_id' => $post['unit'],
+            'price' => $post['price'],
+            'gambar' => $post['gambar']
+        ];
 
         $this->db->insert('p_item', $data);
     }
@@ -25,7 +35,12 @@ class Item_m extends CI_Model
     public function update($post)
     {
         $data = [
-            'name' => $this->input->post('name'),
+            'barcode' => $post['barcode'],
+            'name' => $post['nama_produk'],
+            'category_id' => $post['category'],
+            'unit_id' => $post['unit'],
+            'price' => $post['price'],
+            'gambar' => $post['gambar'],
             'updated' => date('Y-m-d H:i:s')
         ];
 
@@ -33,11 +48,11 @@ class Item_m extends CI_Model
         $this->db->update('p_item', $data);
     }
 
-    public function cek_data($name)
+    public function cek_data($barcode)
     {
         $this->db->select();
         $this->db->from('p_item');
-        $this->db->where('name', $name);
+        $this->db->where('barcode', $barcode);
         $query = $this->db->get();
         return $query;
     }
