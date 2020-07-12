@@ -1,6 +1,6 @@
 # **myPOS**
 
-### Application Point Of Sale, use Codeigniter 3 PHP Framework.
+Application Point Of Sale, use Codeigniter 3 PHP Framework, CRUD with AJAX, notification with Sweet Alert 2.
 
 ### Application Interface
 ![Login](/assets/ss/login.png)
