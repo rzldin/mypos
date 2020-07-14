@@ -24,6 +24,10 @@ Application Point Of Sale, use Codeigniter 3 PHP Framework, CRUD with AJAX, noti
 
 ![Delete Confirm](/assets/ss/konfirmation.png)
 
+###### Barcode & Qrcode Generator
+
+![Barcode Qrcode](/assets/ss/barcode-qrcode.png)
+
 ## Resources
 
 - [CodeIgniter 3](https://codeigniter.com/userguide3/index.html)
@@ -31,3 +35,4 @@ Application Point Of Sale, use Codeigniter 3 PHP Framework, CRUD with AJAX, noti
 - [Sweet Alert 2](https://sweetalert2.github.io//)
 - [Bootstrap 4](https://getbootstrap.com/docs/4.3/getting-started/introduction/)
 - [jQuery](https://code.jquery.com/)
+- [Endroid qrcode](https://github.com/endroid/qr-code)
