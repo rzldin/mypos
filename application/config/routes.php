@@ -56,3 +56,4 @@ $route['translate_uri_dashes'] = FALSE;
 
 //routing
 $route['login'] = 'auth/login';
+$route['stock/in'] = 'stock/stock_in_index';

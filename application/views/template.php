@@ -16,6 +16,8 @@
     <link rel="stylesheet" href="<?= base_url('assets/template/admin') ?>/dist/css/adminlte.min.css">
     <!-- Google Font: Source Sans Pro -->
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+    <!-- daterange picker -->
+    <link rel="stylesheet" href="<?= base_url('assets/template/admin') ?>/plugins/daterangepicker/daterangepicker.css">
     <!-- DataTables -->
     <link rel="stylesheet" href="<?= base_url('assets/template/admin'); ?>/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
     <link rel="stylesheet" href="<?= base_url('assets/template/admin'); ?>/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
@@ -201,8 +203,8 @@
                         </li>
                     </ul>
                     </li>
-                    <li class="nav-item has-treeview">
-                        <a href="#" class="nav-link">
+                    <li class="nav-item has-treeview <?= $this->uri->segment(1) == 'sales' || $this->uri->segment(2) == 'in' || $this->uri->segment(2) == 'out' ? 'menu-open' : '' ?>">
+                        <a href="#" class="nav-link <?= $this->uri->segment(1) == 'sales' || $this->uri->segment(2) == 'in' || $this->uri->segment(2) == 'out' ? 'active' : '' ?>">
                             <i class="nav-icon fas fa-shopping-cart"></i>
                             <p>
                                 Transaction
@@ -211,19 +213,19 @@
                         </a>
                         <ul class="nav nav-treeview">
                             <li class="nav-item">
-                                <a href="../charts/chartjs.html" class="nav-link">
+                                <a href="../charts/chartjs.html" class="nav-link  <?= $this->uri->segment(1) == 'sales' ? 'active' : '' ?>">
                                     <i class="far fa-circle nav-icon"></i>
                                     <p>Sales</p>
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a href="../charts/chartjs.html" class="nav-link">
+                                <a href="<?= site_url('stock/in'); ?>" class="nav-link <?= $this->uri->segment(2) == 'in' ? 'active' : '' ?>">
                                     <i class="far fa-circle nav-icon"></i>
                                     <p>Stock In</p>
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a href="../charts/chartjs.html" class="nav-link">
+                                <a href="../charts/chartjs.html" class="nav-link <?= $this->uri->segment(2) == 'out' ? 'active' : '' ?>">
                                     <i class="far fa-circle nav-icon"></i>
                                     <p>Stock Out</p>
                                 </a>
@@ -306,6 +308,8 @@
     <!-- SweetAlert -->
     <script src="<?= base_url('assets/swal') ?>/sweetalert2.all.min.js"></script>
     <script src="<?= base_url('assets/js/myscript.js') ?>"></script>
+    <!-- date-range-picker -->
+    <script src="<?= base_url('assets/template/admin') ?>/plugins/daterangepicker/daterangepicker.js"></script>
     <script>
         $(function() {
             $("#example1").DataTable({
@@ -320,6 +324,10 @@
                 "info": true,
                 "autoWidth": false,
                 "responsive": true,
+            });
+            //Date range picker
+            $('#reservationdate').datetimepicker({
+                format: 'L'
             });
         });
     </script>
