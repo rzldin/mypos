@@ -17,4 +17,19 @@ class Fungsi
         $user_data = $this->ci->user_m->get($user_id)->row();
         return $user_data;
     }
+
+    function PdfGenerator($html, $filename, $papper, $orientation)
+    {
+        $dompdf = new  Dompdf\Dompdf();
+        $dompdf->loadHtml($html);
+
+        // (Optional) Setup the paper size and orientation
+        $dompdf->setPaper($papper, $orientation);
+
+        // Render the HTML as PDF
+        $dompdf->render();
+
+        // Output the generated PDF to Browser
+        $dompdf->stream($filename, ['Attachment' => 0]);
+    }
 }

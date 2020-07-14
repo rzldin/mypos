@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jul 12, 2020 at 08:26 PM
+-- Generation Time: Jul 14, 2020 at 05:40 AM
 -- Server version: 10.4.11-MariaDB
 -- PHP Version: 7.4.5
 
@@ -79,7 +79,8 @@ INSERT INTO `p_category` (`category_id`, `name`, `created`, `updated`) VALUES
 (2, 'Makanan', '2020-07-10 23:41:35', NULL),
 (3, 'Minuman', '2020-07-10 23:41:45', NULL),
 (4, 'ATK', '2020-07-12 13:29:18', NULL),
-(5, 'Pakaian', '2020-07-12 15:34:56', NULL);
+(5, 'Pakaian', '2020-07-12 15:34:56', NULL),
+(6, 'Jajanan', '2020-07-13 11:50:54', NULL);
 
 -- --------------------------------------------------------
 
@@ -131,7 +132,8 @@ INSERT INTO `p_unit` (`unit_id`, `name`, `created`, `updated`) VALUES
 (2, 'Kilogram', '2020-07-10 23:42:52', NULL),
 (4, 'Buah', '2020-07-13 00:57:31', NULL),
 (5, 'Pack', '2020-07-13 00:57:44', NULL),
-(6, 'Lusin', '2020-07-13 00:57:53', NULL);
+(6, 'Lusin', '2020-07-13 00:57:53', NULL),
+(7, 'Karton', '2020-07-13 11:51:05', NULL);
 
 -- --------------------------------------------------------
 
@@ -249,7 +251,7 @@ ALTER TABLE `customer`
 -- AUTO_INCREMENT for table `p_category`
 --
 ALTER TABLE `p_category`
-  MODIFY `category_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `category_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `p_item`
@@ -261,7 +263,7 @@ ALTER TABLE `p_item`
 -- AUTO_INCREMENT for table `p_unit`
 --
 ALTER TABLE `p_unit`
-  MODIFY `unit_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `unit_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `supplier`

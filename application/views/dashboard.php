@@ -27,7 +27,7 @@
 
 					<div class="info-box-content">
 						<span class="info-box-text">Items</span>
-						<span class="info-box-number">90</span>
+						<span class="info-box-number"><?= COUNT($item) ?></span>
 					</div>
 					<!-- /.info-box-content -->
 				</div>
@@ -40,7 +40,7 @@
 
 					<div class="info-box-content">
 						<span class="info-box-text">Suppliers</span>
-						<span class="info-box-number">41,410</span>
+						<span class="info-box-number"><?= COUNT($supplier) ?></span>
 					</div>
 					<!-- /.info-box-content -->
 				</div>
@@ -57,25 +57,27 @@
 
 					<div class="info-box-content">
 						<span class="info-box-text">Customers</span>
-						<span class="info-box-number">760</span>
+						<span class="info-box-number"><?= COUNT($customer); ?></span>
 					</div>
 					<!-- /.info-box-content -->
 				</div>
 				<!-- /.info-box -->
 			</div>
 			<!-- /.col -->
-			<div class="col-12 col-sm-6 col-md-3">
-				<div class="info-box mb-3">
-					<span class="info-box-icon bg-warning elevation-1"><i class="fas fa-user-plus"></i></span>
+			<?php if ($this->fungsi->user_login()->level == 1) { ?>
+				<div class="col-12 col-sm-6 col-md-3">
+					<div class="info-box mb-3">
+						<span class="info-box-icon bg-warning elevation-1"><i class="fas fa-user-plus"></i></span>
 
-					<div class="info-box-content">
-						<span class="info-box-text">Users</span>
-						<span class="info-box-number"><?= COUNT($user); ?></span>
+						<div class="info-box-content">
+							<span class="info-box-text">Users</span>
+							<span class="info-box-number"><?= COUNT($user); ?></span>
+						</div>
+						<!-- /.info-box-content -->
 					</div>
-					<!-- /.info-box-content -->
+					<!-- /.info-box -->
 				</div>
-				<!-- /.info-box -->
-			</div>
+			<?php } ?>
 			<!-- /.col -->
 			</>
 			<!-- /.card -->

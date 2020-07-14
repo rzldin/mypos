@@ -123,14 +123,14 @@
                                     </div>
                                     <div class="form-row" id="edit_photo" style="display:none;">
                                         <div class="col-md-4">
-                                            Photo Product
+                                            <label for="photo-url" class="col-form-label">Photo Product</label>
                                         </div>
                                         <div class="col-md-5">
-                                            <input type="text" id="photo_url" name="photo_url" class="form-control myline" style="margin-bottom:5px" readonly="true">
+                                            <input type="text" id="photo_url" name="photo_url" class="form-control myline" style="margin-bottom:5px" readonly="true" autofocus>
                                         </div>
                                         <div class="col-md-3">
-                                            <a href="#" onclick="new_file();" class="btn btn-circle green btn-sm">
-                                                <i class="fa fa-pencil-square-o"></i> Change
+                                            <a href="#" onclick="new_file();" class="btn btn-circle btn-success btn-sm">
+                                                <i class="fa fa-edit"></i> Change
                                             </a>
                                         </div>
                                     </div>
@@ -139,7 +139,7 @@
                                             &nbsp;
                                         </div>
                                         <div class="col-md-8">
-                                            <small><i>Recommended 128 x 128 pixels (jpg, png, gif)</i></small>
+                                            <small><i>Recommended 128 x 128 pixels (jpg, png, jpeg)</i></small>
                                         </div>
                                     </div>
                                 </form>
@@ -172,7 +172,7 @@
                                     <th>Category</th>
                                     <th>Unit</th>
                                     <th>Price</th>
-                                    <th>Gambar</th>
+                                    <th>Photo Product</th>
                                     <th>Stock</th>
                                     <th>Action</th>
                                 </tr>
@@ -182,11 +182,16 @@
                                 foreach ($item as $i) { ?>
                                     <tr>
                                         <td><?= $no++ . '.'; ?></td>
-                                        <td><?= $i->barcode; ?></td>
+                                        <td>
+                                            <?= $i->barcode; ?><br>
+                                            <a href="<?= site_url('item/barcode_qrcode/' . $i->item_id); ?>" class="btn btn-warning btn-sm">
+                                                Generate <i class="fa fa-barcode"></i>
+                                            </a>
+                                        </td>
                                         <td><?= $i->name; ?></td>
                                         <td><?= $i->name_category; ?></td>
                                         <td><?= $i->name_unit; ?></td>
-                                        <td><?= $i->price; ?></td>
+                                        <td><?= 'Rp' . ' ' . number_format($i->price); ?></td>
                                         <td align="center">
                                             <img src="<?= base_url('/uploads/product/' . $i->gambar) ?>" style="width: 50px; height:50px;">
                                         </td>
