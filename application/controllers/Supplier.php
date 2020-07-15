@@ -56,8 +56,12 @@ class Supplier extends CI_Controller
     {
         $id = $this->input->post('supplier_id');
         $this->supplier_m->delete($id);
-
-        $this->session->set_flashdata('pesan', 'Data Supplier berhasil di hapus!');
+        $error = $this->db->error();
+        if ($error['code'] != 0) {
+            echo '<script>alert("Data supplier tidak bisa dihapus, karena masih memiliki relasi");</script>';
+        } else {
+            $this->session->set_flashdata('pesan', 'Data Supplier berhasil di hapus!');
+        }
         redirect('supplier');
     }
 }

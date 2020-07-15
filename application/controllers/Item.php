@@ -7,9 +7,7 @@ class Item extends CI_Controller
     public function __construct()
     {
         parent::__construct();
-        $this->load->model('item_m');
-        $this->load->model('category_m');
-        $this->load->model('unit_m');
+        $this->load->model(['item_m', 'category_m', 'unit_m']);
         check_not_login();
     }
 

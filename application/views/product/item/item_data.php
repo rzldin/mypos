@@ -191,7 +191,7 @@
                                         <td><?= $i->name; ?></td>
                                         <td><?= $i->name_category; ?></td>
                                         <td><?= $i->name_unit; ?></td>
-                                        <td><?= 'Rp' . ' ' . number_format($i->price); ?></td>
+                                        <td><?= indo_currency($i->price); ?></td>
                                         <td align="center">
                                             <img src="<?= base_url('/uploads/product/' . $i->gambar) ?>" style="width: 50px; height:50px;">
                                         </td>

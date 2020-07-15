@@ -21,13 +21,16 @@
                 <h3 class="card-title">
                     Add Stock In
                 </h3>
+                <div class="float-sm-right">
+                    <a href="<?= site_url('stock/stock_in_index') ?>" class="btn btn-info btn-sm"><i class="fa fa-undo"> Back</i></a>
+                </div>
             </div>
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-4 offset-md-4">
-                        <form action="<?= site_url('item/proccess'); ?>" method="post">
+                        <form action="<?= site_url('stock/process'); ?>" method="post">
                             <div class="form-group">
-                                <label for="name" class="col-form-label">Date <font color="#f00">*</font></label>
+                                <label for="date" class="col-form-label">Date <font color="#f00">*</font></label>
                                 <input type="date" name="date" class="form-control" value="<?= date('Y-m-d') ?>">
                             </div>
                             <div class="form-group">
@@ -49,7 +52,7 @@
                             <div class="form-group">
                                 <div class="row">
                                     <div class="col-md-8">
-                                        <label for="unit_item">Item Unit</label>
+                                        <label for="unit_name">Item Unit</label>
                                         <input type="text" name="unit_name" id="unit_name" class="form-control" value="-" readonly autofocus>
                                     </div>
                                     <div class="col-md-4">
@@ -63,7 +66,7 @@
                                 <input type="text" name="detail" id="detail" class="form-control" autofocus>
                             </div>
                             <div class="form-group">
-                                <label for="supplier" class="col-form-label">Supplier</label>
+                                <label for="supplier" class="col-form-label">Supplier <span>(Optional)</span></label>
                                 <select name="supplier" id="supplier" class="form-control" autofocus>
                                     <option value="" selected>--Pilih--</option>
                                     <?php foreach ($supplier as $s) { ?>
@@ -86,3 +89,69 @@
         </div>
     </div>
 </section>
+<div class="modal fade" id="modal-item">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Select Product Item</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body table-responsive">
+                <div class="container-fluid">
+                    <table class="table table-bordered table-striped" id="example1">
+                        <thead>
+                            <tr>
+                                <th>Barcode</th>
+                                <th>Name</th>
+                                <th>Unit</th>
+                                <th>Price</th>
+                                <th>Stock</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($item as $i) { ?>
+                                <tr>
+                                    <td><?= $i->barcode; ?></td>
+                                    <td><?= $i->name; ?></td>
+                                    <td style="text-align: center;"><?= $i->name_unit; ?></td>
+                                    <td style="text-align: center;"><?= indo_currency($i->price); ?></td>
+                                    <td><?= $i->stock; ?></td>
+                                    <td align="center">
+                                        <button class="btn btn-xs btn-info" id="select" data-id="<?= $i->item_id; ?>" data-barcode="<?= $i->barcode; ?>" data-name="<?= $i->name; ?>" data-unit="<?= $i->name_unit; ?>" data-stock="<?= $i->stock; ?>">
+                                            <i class="fa fa-check"></i> Select
+                                        </button>
+                                    </td>
+                                </tr>
+                            <?php } ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function() {
+        $(document).on('click', '#select', function() {
+            var item_id = $(this).data('id');
+            var barcode = $(this).data('barcode');
+            var name = $(this).data('name');
+            var unit_name = $(this).data('unit');
+            var stock = $(this).data('stock');
+            $('#item_id').val(item_id);
+            $('#barcode').val(barcode);
+            $('#item_name').val(name);
+            $('#unit_name').val(unit_name);
+            $('#stock').val(stock);
+            $('#modal-item').modal('hide');
+        })
+    });
+</script>

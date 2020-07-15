@@ -213,7 +213,7 @@
                         </a>
                         <ul class="nav nav-treeview">
                             <li class="nav-item">
-                                <a href="../charts/chartjs.html" class="nav-link  <?= $this->uri->segment(1) == 'sales' ? 'active' : '' ?>">
+                                <a href="<?= site_url('sales') ?>" class="nav-link  <?= $this->uri->segment(1) == 'sales' ? 'active' : '' ?>">
                                     <i class="far fa-circle nav-icon"></i>
                                     <p>Sales</p>
                                 </a>
@@ -225,7 +225,7 @@
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a href="../charts/chartjs.html" class="nav-link <?= $this->uri->segment(2) == 'out' ? 'active' : '' ?>">
+                                <a href="<?= site_url('stock/out'); ?>" class="nav-link <?= $this->uri->segment(2) == 'out' ? 'active' : '' ?>">
                                     <i class="far fa-circle nav-icon"></i>
                                     <p>Stock Out</p>
                                 </a>
@@ -324,10 +324,6 @@
                 "info": true,
                 "autoWidth": false,
                 "responsive": true,
-            });
-            //Date range picker
-            $('#reservationdate').datetimepicker({
-                format: 'L'
             });
         });
     </script>
