@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jul 14, 2020 at 05:40 AM
+-- Generation Time: Jul 15, 2020 at 08:50 PM
 -- Server version: 10.4.11-MariaDB
 -- PHP Version: 7.4.5
 
@@ -106,10 +106,15 @@ CREATE TABLE `p_item` (
 --
 
 INSERT INTO `p_item` (`item_id`, `barcode`, `name`, `category_id`, `unit_id`, `price`, `stock`, `gambar`, `created`, `updated`) VALUES
-(13, 'A001', 'Baju Batik', 5, 2, 10000, 0, 'Product-200712-5c4dee4425.jpeg', '2020-07-13 00:29:23', '2020-07-12 20:01:27'),
-(14, 'J002', 'Sapi Galak', 2, 2, 10000, 0, 'Product-200712-915638c1bc.png', '2020-07-13 00:29:54', NULL),
-(15, 'B001', 'Kambing Etawa', 2, 2, 1909090, 0, 'Product-200712-88b1791df9.jpg', '2020-07-13 00:30:19', '2020-07-12 19:59:48'),
-(16, 'C001', 'Bakso', 2, 2, 10000, 0, 'default.png', '2020-07-13 01:03:26', '2020-07-12 20:14:46');
+(13, 'A001', 'Baju Batik', 5, 2, 10000, 15, 'Product-200712-5c4dee4425.jpeg', '2020-07-13 00:29:23', '2020-07-12 20:01:27'),
+(14, 'J002', 'Sapi Galak', 2, 2, 10000, 30, 'Product-200712-915638c1bc.png', '2020-07-13 00:29:54', NULL),
+(15, 'B001', 'Kambing Etawa', 2, 2, 1909090, 20, 'Product-200712-88b1791df9.jpg', '2020-07-13 00:30:19', '2020-07-12 19:59:48'),
+(16, 'C001', 'Bakso', 2, 2, 10000, 12, 'default.png', '2020-07-13 01:03:26', '2020-07-12 20:14:46'),
+(20, 'A002', 'Haus!', 3, 6, 500000, 17, 'Product-200715-39fb7bd384.png', '2020-07-15 21:44:45', NULL),
+(21, 'A003', 'Nyoope', 3, 6, 500000, 0, 'Product-200715-cd99bd8a53.png', '2020-07-15 21:46:04', NULL),
+(22, 'A004', 'Durian Musang King', 2, 2, 1000000, 135, 'Product-200715-ed6f4517a5.png', '2020-07-15 21:49:18', NULL),
+(23, 'A007', 'Susu Kuda Liar', 3, 6, 250000, 0, 'default.png', '2020-07-16 01:14:08', NULL),
+(24, 'A008', 'Permen Kaki', 6, 4, 2000, 0, 'default.png', '2020-07-16 01:14:37', NULL);
 
 -- --------------------------------------------------------
 
@@ -157,7 +162,45 @@ CREATE TABLE `supplier` (
 
 INSERT INTO `supplier` (`supplier_id`, `name`, `phone`, `address`, `desc`, `created`, `updated`) VALUES
 (1, 'Toko A', '0821222112', 'pati', 'Toko Sembako', '2020-07-10 15:02:28', NULL),
-(2, 'Toko ABC', '089271212', 'Klaten', 'Toko Kelontong', '2020-07-10 15:02:28', '2020-07-10 13:41:32');
+(2, 'Toko ABC', '089271212', 'Klaten', 'Toko Kelontong', '2020-07-10 15:02:28', '2020-07-10 13:41:32'),
+(7, 'Haus!', '0821342142', 'Sawangan, Depok', 'Toko Minuman', '2020-07-15 21:52:07', NULL),
+(9, 'Toko Cak Lun', '08921212', 'Semarang', 'Toko Daging', '2020-07-15 21:53:00', NULL),
+(10, 'Toko C', '0821132323', 'Kalimanuk', '', '2020-07-16 01:10:59', NULL),
+(11, 'James', '1212121', 'Depok', 'Tukang Kopi', '2020-07-16 01:11:17', NULL);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `t_stock`
+--
+
+CREATE TABLE `t_stock` (
+  `stock_id` int(11) NOT NULL,
+  `item_id` int(11) NOT NULL,
+  `type` enum('in','out') NOT NULL,
+  `detail` varchar(200) NOT NULL,
+  `supplier_id` int(11) DEFAULT NULL,
+  `qty` int(10) NOT NULL,
+  `date` date NOT NULL,
+  `created` datetime NOT NULL DEFAULT current_timestamp(),
+  `user_id` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `t_stock`
+--
+
+INSERT INTO `t_stock` (`stock_id`, `item_id`, `type`, `detail`, `supplier_id`, `qty`, `date`, `created`, `user_id`) VALUES
+(1, 13, 'in', 'Lusinan', 1, 15, '2020-07-15', '2020-07-15 10:59:59', 1),
+(3, 16, 'in', 'Sekarung', NULL, 12, '2020-07-15', '2020-07-15 13:11:37', 1),
+(4, 15, 'in', 'Sepasang', 1, 23, '2020-07-15', '2020-07-15 13:16:40', 1),
+(6, 14, 'in', 'Daging sapi kiloan', 9, 34, '2020-07-15', '2020-07-15 21:53:37', 1),
+(10, 20, 'in', '10 Kardus', 7, 23, '2020-07-15', '2020-07-16 00:09:58', 1),
+(14, 15, 'out', 'hilang', NULL, 3, '2020-07-15', '2020-07-16 00:50:27', 1),
+(15, 14, 'out', 'hilang', NULL, 4, '2020-07-15', '2020-07-16 00:50:55', 1),
+(16, 22, 'in', '1 Kontainer', 2, 100, '2020-07-15', '2020-07-16 00:53:09', 1),
+(17, 22, 'out', 'Rusak', NULL, 25, '2020-07-15', '2020-07-16 00:53:44', 1),
+(19, 22, 'in', 'Borongan', NULL, 60, '2020-07-15', '2020-07-16 00:58:26', 1);
 
 -- --------------------------------------------------------
 
@@ -226,6 +269,15 @@ ALTER TABLE `supplier`
   ADD PRIMARY KEY (`supplier_id`);
 
 --
+-- Indexes for table `t_stock`
+--
+ALTER TABLE `t_stock`
+  ADD PRIMARY KEY (`stock_id`),
+  ADD KEY `item_id` (`item_id`),
+  ADD KEY `supplier_id` (`supplier_id`),
+  ADD KEY `user_id` (`user_id`);
+
+--
 -- Indexes for table `user`
 --
 ALTER TABLE `user`
@@ -257,7 +309,7 @@ ALTER TABLE `p_category`
 -- AUTO_INCREMENT for table `p_item`
 --
 ALTER TABLE `p_item`
-  MODIFY `item_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `item_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 
 --
 -- AUTO_INCREMENT for table `p_unit`
@@ -269,7 +321,13 @@ ALTER TABLE `p_unit`
 -- AUTO_INCREMENT for table `supplier`
 --
 ALTER TABLE `supplier`
-  MODIFY `supplier_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `supplier_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+
+--
+-- AUTO_INCREMENT for table `t_stock`
+--
+ALTER TABLE `t_stock`
+  MODIFY `stock_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- AUTO_INCREMENT for table `user`
@@ -287,6 +345,14 @@ ALTER TABLE `user`
 ALTER TABLE `p_item`
   ADD CONSTRAINT `p_item_ibfk_1` FOREIGN KEY (`category_id`) REFERENCES `p_category` (`category_id`),
   ADD CONSTRAINT `p_item_ibfk_2` FOREIGN KEY (`unit_id`) REFERENCES `p_unit` (`unit_id`);
+
+--
+-- Constraints for table `t_stock`
+--
+ALTER TABLE `t_stock`
+  ADD CONSTRAINT `t_stock_ibfk_1` FOREIGN KEY (`item_id`) REFERENCES `p_item` (`item_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `t_stock_ibfk_2` FOREIGN KEY (`supplier_id`) REFERENCES `supplier` (`supplier_id`),
+  ADD CONSTRAINT `t_stock_ibfk_3` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
