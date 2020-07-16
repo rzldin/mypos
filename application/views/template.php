@@ -25,7 +25,7 @@
     <script src="<?= base_url('assets/template/admin') ?>/plugins/jquery/jquery.min.js"></script>
 </head>
 
-<body class="hold-transition sidebar-mini">
+<body class="hold-transition sidebar-mini <?= $this->uri->segment(1) == 'sales' ? 'sidebar-collapse' : null; ?>">
     <!-- Site wrapper -->
     <div class="wrapper">
         <!-- Navbar -->

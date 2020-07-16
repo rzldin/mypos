@@ -28,6 +28,10 @@ Application Point Of Sale, use Codeigniter 3 PHP Framework, CRUD with AJAX, noti
 
 ![Barcode Qrcode](/assets/ss/barcode-qrcode.png)
 
+###### Payment Sale
+
+![Barcode Qrcode](/assets/ss/payment.png)
+
 ## Resources
 
 - [CodeIgniter 3](https://codeigniter.com/userguide3/index.html)
