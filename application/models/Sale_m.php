@@ -31,6 +31,19 @@ class Sale_m extends CI_Model
         return $query;
     }
 
+    public function get($id = null)
+    {
+        $this->db->select('*,p_item.barcode, p_item.name as item_name, t_cart.price as cart_price, t_cart.item_id as cart_item');
+        $this->db->from('t_cart');
+        $this->db->join('p_item', 't_cart.item_id=p_item.item_id');
+        if ($id != null) {
+            $this->db->where('cart_id', $id);
+        }
+        $this->db->where('user_id', $this->session->userdata('userid'));
+        $query = $this->db->get();
+        return $query;
+    }
+
     public function add_cart($post)
     {
         $sql = "SELECT MAX(cart_id) AS cart_no FROM t_cart";
@@ -52,6 +65,20 @@ class Sale_m extends CI_Model
         ];
 
         $this->db->insert('t_cart', $params);
+    }
+
+    public function update_cart($post)
+    {
+        $data = [
+            'price' => $post['item_price'],
+            'discount_item' => $post['item_discount'],
+            'qty' => $post['item_qty'],
+            'total' => (($post['item_price'] * $post['item_qty']) - $post['item_discount']),
+            'user_id' => $this->session->userdata('userid')
+        ];
+
+        $this->db->where('cart_id', $post['cart_id']);
+        $this->db->update('t_cart', $data);
     }
 
     public function update_cart_qty($post)

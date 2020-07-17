@@ -167,7 +167,7 @@
                                 </td>
                                 <td>
                                     <div class="form-group">
-                                        <input type="number" id="discount" name="discount" value="0" class="form-control">
+                                        <input type="number" id="discount" value="0" class="form-control">
                                     </div>
                                 </td>
                             </tr>
@@ -177,7 +177,7 @@
                                 </td>
                                 <td>
                                     <div class="form-group">
-                                        <input type="number" id="grand_total" name="grand_total" class="form-control" readonly>
+                                        <input type="number" id="grand_total" class="form-control" readonly>
                                     </div>
                                 </td>
                             </tr>
@@ -288,7 +288,6 @@
         </div>
     </div>
 </div>
-
 <script>
     $(document).on('click', '#select', function() {
         $('#item_id').val($(this).data('id'))

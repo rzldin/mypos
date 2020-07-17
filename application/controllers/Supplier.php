@@ -41,6 +41,7 @@ class Supplier extends CI_Controller
         $data = $this->supplier_m->get($id)->row_array();
         header('Content-Type: application/json');
         echo json_encode($data);
+        // var_dump($data);
     }
 
     public function update()

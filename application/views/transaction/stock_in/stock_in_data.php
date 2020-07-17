@@ -59,7 +59,6 @@
                                             <i class="fa fa-trash"></i>
                                         </button>
                                     </form>
-                                    <!-- <a href="<?= site_url('stock/stock_in_del/' . $s->stock_id . '/' . $s->item_id); ?>" class="btn btn-danger btn-md tombol-hapus"><i class="fa fa-trash"></i></a> -->
                                 </td>
                             </tr>
                         <?php } ?>

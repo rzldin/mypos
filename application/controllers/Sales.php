@@ -45,6 +45,23 @@ class Sales extends CI_Controller
         }
     }
 
+    public function edit()
+    {
+        $id = $this->input->post('cart_id');
+        $data = $this->sale_m->get($id)->row_array();
+        header('Content-Type: application/json');
+        echo json_encode($data);
+        //var_dump($data);
+    }
+
+    public function update()
+    {
+        $post = $this->input->post();
+        $this->sale_m->update_cart($post);
+        $this->session->set_flashdata('pesan', 'Cart berhasil diupdate.');
+        redirect('sales');
+    }
+
     public function cart_data()
     {
         $cart = $this->sale_m->get_cart();
@@ -57,11 +74,7 @@ class Sales extends CI_Controller
         $cart_id = $this->input->post('cart_id');
         $this->sale_m->del_cart(['cart_id' => $cart_id]);
 
-        if ($this->db->affected_rows() > 0) {
-            $params = array("success" => true);
-        } else {
-            $params = array("success" => false);
-        }
-        echo json_encode($params);
+        $this->session->set_flashdata('pesan', 'Cart berhasil di hapus!');
+        redirect('sales');
     }
 }
