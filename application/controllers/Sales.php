@@ -43,6 +43,33 @@ class Sales extends CI_Controller
             }
             echo json_encode($params);
         }
+        if (isset($_POST['process_payment'])) {
+            $sale_id = $this->sale_m->add_sale($post);
+            $cart = $this->sale_m->get_cart()->result();
+            $row = [];
+
+
+            foreach ($cart as $c) {
+                array_push($row, [
+                    'sale_id' => $sale_id,
+                    'item_id' => $c->item_id,
+                    'price' => $c->cart_price,
+                    'qty' => $c->qty,
+                    'discount_item' => $c->discount_item,
+                    'total' => $c->total
+                ]);
+            }
+
+            $this->sale_m->add_sale_detail($row);
+            $this->sale_m->del_cart(['user_id' => $this->session->userdata('userid')]);
+
+            if ($this->db->affected_rows() > 0) {
+                $params = array("success" => true, "sale_id" => $sale_id);
+            } else {
+                $params = array("success" => false);
+            }
+            echo json_encode($params);
+        }
     }
 
     public function edit()
@@ -71,10 +98,21 @@ class Sales extends CI_Controller
 
     public function cart_del()
     {
-        $cart_id = $this->input->post('cart_id');
-        $this->sale_m->del_cart(['cart_id' => $cart_id]);
+        if (isset($_POST['cancel_payment'])) {
+            $this->sale_m->del_cart(['user_id' => $this->session->userdata('userid')]);
+        } else {
+            $cart_id = $this->input->post('cart_id');
+            $this->sale_m->del_cart(['cart_id' => $cart_id]);
+        }
 
         $this->session->set_flashdata('pesan', 'Cart berhasil di hapus!');
         redirect('sales');
+    }
+
+    public function cetak($id)
+    {
+        $data['sale'] = $this->sale_m->get_sale($id)->row();
+        $data['sale_detail'] = $this->sale_m->get_sale_detail($id)->result();
+        $this->load->view('transaction/sales/print_struk', $data);
     }
 }

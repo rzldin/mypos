@@ -14,7 +14,7 @@ if ($cart->num_rows() > 0) {
                 } ?>
                 <?= $uang; ?>
             </td>
-            <td><?= indo_currency($c->total); ?></td>
+            <td id="total"><?= $c->total; ?></td>
             <td class="text-center" width="160px">
                 <a onclick="editData(<?= $c->cart_id; ?>)" class="btn btn-xs btn-primary" style="color: white;">
                     <i class="fa fa-edit"></i> Update
@@ -120,5 +120,6 @@ if ($cart->num_rows() > 0) {
     function simpandata() {
         $('#formku').attr("action", "<?= site_url('sales/update') ?>");
         $('#formku').submit();
+        calculate()
     }
 </script>

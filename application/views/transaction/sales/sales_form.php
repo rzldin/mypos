@@ -47,7 +47,7 @@
                                 </td>
                                 <td>
                                     <div class="form-group">
-                                        <select name="customer" id="customer" class="form-control">
+                                        <select name="customer" id="customer_id" class="form-control">
                                             <option value="" selected>Umum</option>
                                             <?php foreach ($customer as $c) { ?>
                                                 <option value="<?= $c->customer_id; ?>"><?= $c->name; ?></option>
@@ -111,7 +111,7 @@
                     <div class="card-body" style="height: 200px;">
                         <div align="right">
                             <h4>Invoice <b><span id="invoice"><?= $invoice; ?></span></b></h4>
-                            <h1><b><span id="grand_total" style="font-size:50pt;">0</span></b></h1>
+                            <h1><b><span id="grand_total2" style="font-size:50pt;">0</span></b></h1>
                         </div>
                     </div>
                 </div>
@@ -157,7 +157,7 @@
                                 </td>
                                 <td>
                                     <div class="form-group">
-                                        <input type="number" id="sub_total" name="sub_total" value="" class="form-control" readonly>
+                                        <input type="number" id="sub_total" value="" class="form-control" readonly>
                                     </div>
                                 </td>
                             </tr>
@@ -236,7 +236,7 @@
                     <button id="cancel_payment" class="btn btn-flat btn-warning" style="color: white;">
                         <i class="fa fa-recycle"></i> Cancel
                     </button><br><br>
-                    <button id="process_payment" class="btn btn-flat btn-lg btn-success">
+                    <button id="process_payment" name="process_payment" class="btn btn-flat btn-lg btn-success">
                         <i class="fa fa-paper-plane"></i> Process Payment
                     </button>
                 </div>
@@ -289,6 +289,10 @@
     </div>
 </div>
 <script>
+    $(document).ready(function() {
+        calculate()
+    });
+
     $(document).on('click', '#select', function() {
         $('#item_id').val($(this).data('id'))
         $('#barcode').val($(this).data('barcode'))
@@ -324,7 +328,7 @@
                 success: function(result) {
                     if (result.success == true) {
                         $('#cart_tabel').load('<?= site_url('sales/cart_data'); ?>', function() {
-
+                            calculate()
                         });
                         $('#item_id').val('');
                         $('#barcode').val('');
@@ -361,4 +365,106 @@
 
         }
     });
+
+    $(document).on('click', '#process_payment', function() {
+        var subtotal = $('#sub_total').val();
+        var customer = $('#customer_id').val();
+        var discount = $('#discount').val();
+        var grandtotal = $('#grand_total').val();
+        var cash = $('#cash').val();
+        var change = $('#change').val();
+        var note = $('#note').val();
+        var date = $('#date').val();
+
+        if (subtotal < 1) {
+            alert('Product belum dipilih');
+            $('#barcode').focus();
+        } else if (cash < 1) {
+            alert('Masukkan Uang Cash');
+            $('#cash').focus();
+        } else {
+            if (confirm('Ingin memproses transaksi ini?')) {
+                $.ajax({
+                    type: "POST",
+                    url: "<?= site_url('sales/process') ?>",
+                    data: {
+                        'process_payment': true,
+                        'customer_id': customer,
+                        'sub_total': subtotal,
+                        'discount': discount,
+                        'grand_total': grandtotal,
+                        'cash': cash,
+                        'change': change,
+                        'note': note,
+                        'date': date
+                    },
+                    dataType: "json",
+                    success: function(result) {
+                        if (result.success == true) {
+                            console.log('Print.......');
+                            alert('Berhasil melakukan transaksi')
+                            window.open('<?= site_url('sales/cetak/') ?>' + result.sale_id,
+                                '_blank')
+                        } else {
+                            alert('gagal melakukan transaksi');
+                        }
+                    }
+                });
+            }
+        }
+    });
+
+    $(document).on('click', '#cancel_payment', function() {
+        if (confirm('Ingin membatalkan pesanan?')) {
+            $.ajax({
+                type: "POST",
+                url: "<?= site_url('sales/cart_del') ?>",
+                data: {
+                    'cancel_payment': true
+                },
+                dataType: "json",
+                success: function(result) {
+                    if (result.success == true) {
+                        console.log('terhapus')
+                        $('#cart_tabel').load('<?= site_url('sales/cart_data'); ?>', function() {
+                            calculate()
+                        });
+                    }
+                }
+            });
+            $('#discount').val(0)
+            $('#cash').val(0)
+            $('#customer').val(0).change()
+            $('#barcode').val('')
+            $('#barcode').focus()
+
+        }
+    });
+
+    function calculate() {
+        var subtotal = 0;
+        $('#cart_tabel tr').each(function() {
+            subtotal += parseInt($(this).find('#total').text(), 10)
+        })
+        isNaN(subtotal) ? $('#sub_total').val(0) : $('#sub_total').val(subtotal)
+
+        var discount = $('#discount').val()
+        var grand_total = subtotal - discount
+        //console.log(subtotal);
+        if (isNaN(grand_total)) {
+            $('#grand_total').val(0)
+            $('#grand_total2').text(0)
+        } else {
+            $('#grand_total').val(grand_total)
+            $('#grand_total2').text(grand_total)
+        }
+
+        //hitung kembalian
+        var cash = $('#cash').val();
+        cash != 0 ? $('#change').val(cash - grand_total) : $('#change').val(0);
+    }
+
+    $(document).on('keyup mouseup', '#discount, #cash', function() {
+        calculate()
+    })
 </script>
