@@ -418,7 +418,7 @@
         if (confirm('Ingin membatalkan pesanan?')) {
             $.ajax({
                 type: "POST",
-                url: "<?= site_url('sales/cart_del') ?>",
+                url: "<?= site_url('sales/reset') ?>",
                 data: {
                     'cancel_payment': true
                 },
@@ -431,7 +431,7 @@
                         });
                     }
                 }
-            });
+            })
             $('#discount').val(0)
             $('#cash').val(0)
             $('#customer').val(0).change()
