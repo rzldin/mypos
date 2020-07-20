@@ -80,7 +80,7 @@
                     <td>Customer</td>
                     <td style="text-align: center;">:</td>
                     <td style="text-align: right;">
-                        <?= $sale->customer_id == null ? "Umum" : $sale->customer_id; ?>
+                        <?= $sale->customer_id != null ? $sale->customer_id : "Umum" ?>
                     </td>
                 </tr>
             </table>

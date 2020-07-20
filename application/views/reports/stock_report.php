@@ -1,0 +1,1 @@
+buat stock_report

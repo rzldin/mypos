@@ -137,6 +137,20 @@
         </div>
     </div>
 </div>
+<script src="https://js.pusher.com/6.0/pusher.min.js"></script>
+<script>
+    // Enable pusher logging - don't include this in production
+    Pusher.logToConsole = true;
+
+    var pusher = new Pusher('d4392a044ecee1cce52a', {
+        cluster: 'ap1'
+    });
+
+    var channel = pusher.subscribe('my-channel');
+    channel.bind('my-event', function(data) {
+        alert(JSON.stringify(data));
+    });
+</script>
 
 <script>
     $(document).ready(function() {

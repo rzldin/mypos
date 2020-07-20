@@ -35,7 +35,7 @@ class Sale_m extends CI_Model
     {
         $data = [
             'invoice' => $this->invoice_no(),
-            'customer_id' => $post['customer_id'] == "" ? null : $post['costumer_id'],
+            'customer_id' => $post['customer_id'] != null ? $post['costumer_id'] : null,
             'total_price' => $post['sub_total'],
             'discount' => $post['discount'],
             'final_price' => $post['grand_total'],
@@ -121,7 +121,7 @@ class Sale_m extends CI_Model
 
     public function get_sale($id = null)
     {
-        $this->db->select('*, customer.name as customer_name, user.username as user_name, t_sale.created as sale_created');
+        $this->db->select('*, customer.name as customer_name, user.name as user_name, t_sale.created as sale_created');
         $this->db->from('t_sale');
         $this->db->join('user', 't_sale.user_id=user.user_id');
         $this->db->join('customer', 't_sale.customer_id=customer.customer_id', 'left');

@@ -401,7 +401,7 @@
                     dataType: "json",
                     success: function(result) {
                         if (result.success == true) {
-                            console.log('Print.......');
+                            console.log('Print.......')
                             alert('Berhasil melakukan transaksi')
                             window.open('<?= site_url('sales/cetak/') ?>' + result.sale_id,
                                 '_blank')

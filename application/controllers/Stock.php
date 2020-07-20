@@ -45,6 +45,19 @@ class Stock extends CI_Controller
             $this->item_m->update_stock_in($post);
 
             if ($this->db->affected_rows() > 0) {
+                $options = array(
+                    'cluster' => 'ap1',
+                    'useTLS' => true
+                );
+                $pusher = new Pusher\Pusher(
+                    'd4392a044ecee1cce52a',
+                    '2ee60baddf74f9ad2925',
+                    '1041444',
+                    $options
+                );
+
+                $data['message'] = 'hello world';
+                $pusher->trigger('my-channel', 'my-event', $data);
                 $this->session->set_flashdata('pesan', 'Data Stock-In berhasil ditambah');
                 redirect('stock/in');
             }
