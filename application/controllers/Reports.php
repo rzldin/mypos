@@ -22,4 +22,12 @@ class Reports extends CI_Controller
     {
         $this->template->load('template', 'reports/stock_report');
     }
+
+    public function detail()
+    {
+        $sale_id = $this->input->post('sale_id');
+        $data = $this->sale_m->get_sale_detail($sale_id)->row_array();
+        header('Content-Type: application/json');
+        echo json_encode($data);
+    }
 }

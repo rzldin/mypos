@@ -45,23 +45,18 @@
                         foreach ($sale as $s) { ?>
                             <tr>
                                 <td><?= $no++; ?></td>
-                                <td><?= $s->invoice; ?></td>
+                                <td id="invoice"><?= $s->invoice; ?></td>
                                 <td style="text-align: center;"><?= $s->customer_name != null ? $s->customer_name : "Umum"; ?></td>
-                                <td><?= $s->discount ?></td>
+                                <td><?= indo_currency($s->discount) ?></td>
                                 <td><?= $s->note; ?></td>
                                 <td style="text-align: center;"><?= indo_date($s->date) ?></td>
                                 <td align="center">
                                     <h5><span class="badge badge-secondary"><?= $s->user_name; ?></span></h5>
                                 </td>
                                 <td align="center">
-                                    <a class="btn btn-default btn-sm" id="select-detail" data-toggle="modal" data-target="#modal-detail"><i class=" fa fa-eye"></i>
+                                    <a class="btn btn-default btn-sm" onclick="showDetail(<?= $s->sale_id; ?>)"><i class=" fa fa-eye"></i>
                                     </a>
-                                    <form action="<?= site_url('stock/stock_in_del') ?>" method="post" class="d-inline">
-                                        <input type="hidden" name="sale_id" value="<?= $s->sale_id; ?>">
-                                        <button class="btn btn-danger btn-sm tombol-hapus" type="submit">
-                                            <i class="fa fa-print"> Cetak</i>
-                                        </button>
-                                    </form>
+                                    <a href="javascript:;" onclick="printSale(<?= $s->sale_id; ?>)" style="text-decoration: none;" class="btn btn-danger btn-sm"><i class="fa fa-print"></i></a>
                                 </td>
                             </tr>
                         <?php } ?>
@@ -85,13 +80,6 @@
                     <table class="table table-borderless">
                         <tbody>
                             <tr>
-                                <th>Barcode</th>
-                                <td>:</td>
-                                <td>
-                                    <span id="barcode">&nbsp;</span>
-                                </td>
-                            </tr>
-                            <tr>
                                 <th>Item Name</th>
                                 <td>:</td>
                                 <td>
@@ -99,10 +87,10 @@
                                 </td>
                             </tr>
                             <tr>
-                                <th>Supplier</th>
+                                <th>Price</th>
                                 <td>:</td>
                                 <td>
-                                    <span id="supplier">&nbsp;</span>
+                                    <span id="price">&nbsp;</span>
                                 </td>
                             </tr>
                             <tr>
@@ -113,10 +101,17 @@
                                 </td>
                             </tr>
                             <tr>
-                                <th>Date </th>
+                                <th>Discount Item </th>
                                 <td>:</td>
                                 <td>
-                                    <span id="date">&nbsp;</span>
+                                    <span id="disc">&nbsp;</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>total </th>
+                                <td>:</td>
+                                <td>
+                                    <span id="total">&nbsp;</span>
                                 </td>
                             </tr>
                         </tbody>
@@ -127,21 +122,29 @@
     </div>
 </div>
 <script>
-    $(document).ready(function() {
-        $(document).on('click', '#select-detail', function() {
-            var item_id = $(this).data('id');
-            var barcode = $(this).data('barcode');
-            var itemname = $(this).data('itemname');
-            var suppliername = $(this).data('suppliername');
-            var qty = $(this).data('qty');
-            var date = $(this).data('date');
-            $('#item_id').val(item_id);
-            $('#barcode').text(barcode);
-            $('#item_name').text(itemname);
-            $('#supplier').text(suppliername);
-            $('#qty').text(qty);
-            $('#date').text(date);
-            $('#modal-item').modal('hide');
-        })
-    });
+    function showDetail(sale_id) {
+        $.ajax({
+            type: "POST",
+            url: "<?= site_url('reports/detail'); ?>",
+            data: {
+                sale_id: sale_id
+            },
+            dataType: "json",
+            success: function(result) {
+                // console.log(result)
+                $('#item_name').text(result['name']);
+                $('#price').text(result['price']);
+                $('#qty').text(result['qty']);
+                $('#disc').text(result['discount_item']);
+                $('#total').text(result['total']);
+                $('#sale_id').val(result['sale_id']);
+
+                $('#modal-detail').modal('show')
+            }
+        });
+    }
+
+    function printSale(sale_id) {
+
+    }
 </script>

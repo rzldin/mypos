@@ -271,10 +271,13 @@
     <!-- SweetAlert -->
     <script src="<?= base_url('assets/swal') ?>/sweetalert2.all.min.js"></script>
     <script src="<?= base_url('assets/js/myscript.js') ?>"></script>
+    <!-- ChartJS -->
+    <script src="<?= base_url('assets/template/admin') ?>/plugins/chart.js/Chart.min.js"></script>
     <!-- date-range-picker -->
     <script src="<?= base_url('assets/template/admin') ?>/plugins/daterangepicker/daterangepicker.js"></script>
     <script>
         $(function() {
+
             $("#example1").DataTable({
                 "responsive": true,
                 "autoWidth": false,
