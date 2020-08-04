@@ -2,6 +2,10 @@
 
 Application Point Of Sale, use Codeigniter 3 PHP Framework, CRUD with AJAX, notification with Sweet Alert 2.
 
+List User :
+username : admin | password : admin | role : admin
+username : kasir1 | password : 12 | role : cashieer
+
 ## Application Interface
 
 ###### View Login
