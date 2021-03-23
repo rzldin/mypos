@@ -66,7 +66,7 @@ class Item extends CI_Controller
         $data = $this->item_m->get($id)->row_array();
         header('Content-Type: application/json');
         echo json_encode($data);
-        //var_dump($data);
+        var_dump($data);
     }
 
     public function update()

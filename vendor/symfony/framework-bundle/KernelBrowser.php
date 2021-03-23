@@ -45,7 +45,7 @@ class KernelBrowser extends HttpKernelBrowser
     /**
      * Returns the container.
      *
-     * @return ContainerInterface|null Returns null when the Kernel has been shutdown or not started yet
+     * @return ContainerInterface
      */
     public function getContainer()
     {
@@ -65,7 +65,7 @@ class KernelBrowser extends HttpKernelBrowser
     /**
      * Gets the profile associated with the current Response.
      *
-     * @return HttpProfile|false A Profile instance
+     * @return HttpProfile|false|null A Profile instance
      */
     public function getProfile()
     {

@@ -23,30 +23,25 @@ class ExtensionPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container)
     {
-        if (!class_exists('Symfony\Component\Asset\Packages')) {
+        if (!class_exists(\Symfony\Component\Asset\Packages::class)) {
             $container->removeDefinition('twig.extension.assets');
         }
 
-        if (!class_exists('Symfony\Component\ExpressionLanguage\Expression')) {
+        if (!class_exists(\Symfony\Component\ExpressionLanguage\Expression::class)) {
             $container->removeDefinition('twig.extension.expression');
         }
 
-        if (!interface_exists('Symfony\Component\Routing\Generator\UrlGeneratorInterface')) {
+        if (!interface_exists(\Symfony\Component\Routing\Generator\UrlGeneratorInterface::class)) {
             $container->removeDefinition('twig.extension.routing');
         }
 
-        if (!class_exists('Symfony\Component\Yaml\Yaml')) {
+        if (!class_exists(\Symfony\Component\Yaml\Yaml::class)) {
             $container->removeDefinition('twig.extension.yaml');
         }
 
-        $viewDir = \dirname((new \ReflectionClass('Symfony\Bridge\Twig\Extension\FormExtension'))->getFileName(), 2).'/Resources/views';
+        $viewDir = \dirname((new \ReflectionClass(\Symfony\Bridge\Twig\Extension\FormExtension::class))->getFileName(), 2).'/Resources/views';
         $templateIterator = $container->getDefinition('twig.template_iterator');
         $templatePaths = $templateIterator->getArgument(1);
-        $cacheWarmer = null;
-        if ($container->hasDefinition('twig.cache_warmer')) {
-            $cacheWarmer = $container->getDefinition('twig.cache_warmer');
-            $cacheWarmerPaths = $cacheWarmer->getArgument(2);
-        }
         $loader = $container->getDefinition('twig.loader.native_filesystem');
 
         if ($container->has('mailer')) {
@@ -54,9 +49,6 @@ class ExtensionPass implements CompilerPassInterface
             $loader->addMethodCall('addPath', [$emailPath, 'email']);
             $loader->addMethodCall('addPath', [$emailPath, '!email']);
             $templatePaths[$emailPath] = 'email';
-            if ($cacheWarmer) {
-                $cacheWarmerPaths[$emailPath] = 'email';
-            }
         }
 
         if ($container->has('form.extension')) {
@@ -65,15 +57,9 @@ class ExtensionPass implements CompilerPassInterface
             $coreThemePath = $viewDir.'/Form';
             $loader->addMethodCall('addPath', [$coreThemePath]);
             $templatePaths[$coreThemePath] = null;
-            if ($cacheWarmer) {
-                $cacheWarmerPaths[$coreThemePath] = null;
-            }
         }
 
         $templateIterator->replaceArgument(1, $templatePaths);
-        if ($cacheWarmer) {
-            $container->getDefinition('twig.cache_warmer')->replaceArgument(2, $cacheWarmerPaths);
-        }
 
         if ($container->has('router')) {
             $container->getDefinition('twig.extension.routing')->addTag('twig.extension');
@@ -88,10 +74,6 @@ class ExtensionPass implements CompilerPassInterface
                     ->addTag('kernel.fragment_renderer', ['alias' => 'hinclude'])
                 ;
             }
-        }
-
-        if (!$container->has('http_kernel')) {
-            $container->removeDefinition('twig.controller.preview_error');
         }
 
         if ($container->has('request_stack')) {
@@ -121,7 +103,7 @@ class ExtensionPass implements CompilerPassInterface
             $container->getDefinition('twig.extension.yaml')->addTag('twig.extension');
         }
 
-        if (class_exists('Symfony\Component\Stopwatch\Stopwatch')) {
+        if (class_exists(\Symfony\Component\Stopwatch\Stopwatch::class)) {
             $container->getDefinition('twig.extension.debug.stopwatch')->addTag('twig.extension');
         }
 

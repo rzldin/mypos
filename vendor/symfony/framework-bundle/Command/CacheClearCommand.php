@@ -80,6 +80,7 @@ EOF
 
         $kernel = $this->getApplication()->getKernel();
         $realCacheDir = $kernel->getContainer()->getParameter('kernel.cache_dir');
+        $realBuildDir = $kernel->getContainer()->hasParameter('kernel.build_dir') ? $kernel->getContainer()->getParameter('kernel.build_dir') : $realCacheDir;
         // the old cache dir name must not be longer than the real one to avoid exceeding
         // the maximum length of a directory or file path within it (esp. Windows MAX_PATH)
         $oldCacheDir = substr($realCacheDir, 0, -1).('~' === substr($realCacheDir, -1) ? '+' : '~');
@@ -89,7 +90,27 @@ EOF
             throw new RuntimeException(sprintf('Unable to write in the "%s" directory.', $realCacheDir));
         }
 
+        $useBuildDir = $realBuildDir !== $realCacheDir;
+        $oldBuildDir = substr($realBuildDir, 0, -1).('~' === substr($realBuildDir, -1) ? '+' : '~');
+        if ($useBuildDir) {
+            $fs->remove($oldBuildDir);
+
+            if (!is_writable($realBuildDir)) {
+                throw new RuntimeException(sprintf('Unable to write in the "%s" directory.', $realBuildDir));
+            }
+
+            if ($this->isNfs($realCacheDir)) {
+                $fs->remove($realCacheDir);
+            } else {
+                $fs->rename($realCacheDir, $oldCacheDir);
+            }
+            $fs->mkdir($realCacheDir);
+        }
+
         $io->comment(sprintf('Clearing the cache for the <info>%s</info> environment with debug <info>%s</info>', $kernel->getEnvironment(), var_export($kernel->isDebug(), true)));
+        if ($useBuildDir) {
+            $this->cacheClearer->clear($realBuildDir);
+        }
         $this->cacheClearer->clear($realCacheDir);
 
         // The current event dispatcher is stale, let's not use it anymore
@@ -100,7 +121,7 @@ EOF
 
         // the warmup cache dir name must have the same length as the real one
         // to avoid the many problems in serialized resources files
-        $warmupDir = substr($realCacheDir, 0, -1).('_' === substr($realCacheDir, -1) ? '-' : '_');
+        $warmupDir = substr($realBuildDir, 0, -1).('_' === substr($realBuildDir, -1) ? '-' : '_');
 
         if ($output->isVerbose() && $fs->exists($warmupDir)) {
             $io->comment('Clearing outdated warmup directory...');
@@ -135,35 +156,31 @@ EOF
             }
 
             if (!$fs->exists($warmupDir.'/'.$containerDir)) {
-                $fs->rename($realCacheDir.'/'.$containerDir, $warmupDir.'/'.$containerDir);
+                $fs->rename($realBuildDir.'/'.$containerDir, $warmupDir.'/'.$containerDir);
                 touch($warmupDir.'/'.$containerDir.'.legacy');
             }
 
-            if ('/' === \DIRECTORY_SEPARATOR && $mounts = @file('/proc/mounts')) {
-                foreach ($mounts as $mount) {
-                    $mount = \array_slice(explode(' ', $mount), 1, -3);
-                    if (!\in_array(array_pop($mount), ['vboxsf', 'nfs'])) {
-                        continue;
-                    }
-                    $mount = implode(' ', $mount).'/';
-
-                    if (0 === strpos($realCacheDir, $mount)) {
-                        $io->note('For better performances, you should move the cache and log directories to a non-shared folder of the VM.');
-                        $oldCacheDir = false;
-                        break;
-                    }
-                }
-            }
-
-            if ($oldCacheDir) {
-                $fs->rename($realCacheDir, $oldCacheDir);
+            if ($this->isNfs($realBuildDir)) {
+                $io->note('For better performances, you should move the cache and log directories to a non-shared folder of the VM.');
+                $fs->remove($realBuildDir);
             } else {
-                $fs->remove($realCacheDir);
+                $fs->rename($realBuildDir, $oldBuildDir);
             }
-            $fs->rename($warmupDir, $realCacheDir);
+
+            $fs->rename($warmupDir, $realBuildDir);
 
             if ($output->isVerbose()) {
-                $io->comment('Removing old cache directory...');
+                $io->comment('Removing old build and cache directory...');
+            }
+
+            if ($useBuildDir) {
+                try {
+                    $fs->remove($oldBuildDir);
+                } catch (IOException $e) {
+                    if ($output->isVerbose()) {
+                        $io->warning($e->getMessage());
+                    }
+                }
             }
 
             try {
@@ -184,7 +201,32 @@ EOF
         return 0;
     }
 
-    private function warmup(string $warmupDir, string $realCacheDir, bool $enableOptionalWarmers = true)
+    private function isNfs(string $dir): bool
+    {
+        static $mounts = null;
+
+        if (null === $mounts) {
+            $mounts = [];
+            if ('/' === \DIRECTORY_SEPARATOR && $files = @file('/proc/mounts')) {
+                foreach ($files as $mount) {
+                    $mount = \array_slice(explode(' ', $mount), 1, -3);
+                    if (!\in_array(array_pop($mount), ['vboxsf', 'nfs'])) {
+                        continue;
+                    }
+                    $mounts[] = implode(' ', $mount).'/';
+                }
+            }
+        }
+        foreach ($mounts as $mount) {
+            if (0 === strpos($dir, $mount)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function warmup(string $warmupDir, string $realBuildDir, bool $enableOptionalWarmers = true)
     {
         // create a temporary kernel
         $kernel = $this->getApplication()->getKernel();
@@ -207,7 +249,7 @@ EOF
 
         // fix references to cached files with the real cache directory name
         $search = [$warmupDir, str_replace('\\', '\\\\', $warmupDir)];
-        $replace = str_replace('\\', '/', $realCacheDir);
+        $replace = str_replace('\\', '/', $realBuildDir);
         foreach (Finder::create()->files()->in($warmupDir) as $file) {
             $content = str_replace($search, $replace, file_get_contents($file), $count);
             if ($count) {
