@@ -6,7 +6,7 @@
     'aliases' => 
     array (
     ),
-    'reference' => '515951190cda52ed55631041af8d0cd53767cd4e',
+    'reference' => '112484ee57c55a890d10a418fd322dccb015010b',
     'name' => 'codeigniter/framework',
   ),
   'versions' => 
@@ -27,7 +27,7 @@
       'aliases' => 
       array (
       ),
-      'reference' => '515951190cda52ed55631041af8d0cd53767cd4e',
+      'reference' => '112484ee57c55a890d10a418fd322dccb015010b',
     ),
     'dasprid/enum' => 
     array (
