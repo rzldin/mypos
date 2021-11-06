@@ -20,6 +20,29 @@ class Item extends CI_Controller
         $this->template->load('template', 'product/item/item_data', $data);
     }
 
+    public function get_data()
+    {
+        $tabel = '';
+
+        $data = $this->item_m->get()->result();
+
+        foreach ($data as $row) {
+            $tabel .= '<tr>';
+            $tabel .= '<td>'.$row->barcode.'</td>';
+            $tabel .= '<td>'.$row->name.'</td>';
+            $tabel .= '<td style="text-align: center;">'.$row->name_unit.'</td>';
+            $tabel .= '<td style="text-align: center;">'.indo_currency($row->price).'</td>';
+            $tabel .= '<td>'.$row->stock.'</label>';
+            $tabel .= '<td style="text-align:center;">';
+            $tabel .= '<button class="btn btn-xs btn-info" id="select" data-id="'.$row->item_id.'" data-barcode="'.$row->barcode.'" data-price="'.$row->price.'" data-stock="'.$row->stock.'"><i class="fa fa-check"></i> Select</button>';
+            $tabel .= '</td>';
+            $tabel .= '</tr>';
+        }
+
+        header('Content-Type: application/json');
+        echo json_encode($tabel);
+    }
+
     public function cek_barcode()
     {
         $barcode = $this->input->post('data');
@@ -66,7 +89,6 @@ class Item extends CI_Controller
         $data = $this->item_m->get($id)->row_array();
         header('Content-Type: application/json');
         echo json_encode($data);
-        var_dump($data);
     }
 
     public function update()

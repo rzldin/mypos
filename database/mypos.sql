@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Aug 04, 2020 at 06:46 AM
+-- Generation Time: Jun 08, 2021 at 03:21 AM
 -- Server version: 10.4.11-MariaDB
 -- PHP Version: 7.4.5
 
@@ -110,12 +110,12 @@ CREATE TABLE `p_item` (
 --
 
 INSERT INTO `p_item` (`item_id`, `barcode`, `name`, `category_id`, `unit_id`, `price`, `stock`, `gambar`, `created`, `updated`) VALUES
-(13, 'A001', 'Baju Batik', 5, 2, 10000, 15, 'Product-200712-5c4dee4425.jpeg', '2020-07-13 00:29:23', '2020-07-12 20:01:27'),
+(13, 'A001', 'Baju Batik', 5, 2, 10000, 27, 'Product-200712-5c4dee4425.jpeg', '2020-07-13 00:29:23', '2020-07-12 20:01:27'),
 (14, 'J002', 'Sapi Galak', 2, 2, 10000, 30, 'Product-200712-915638c1bc.png', '2020-07-13 00:29:54', NULL),
 (15, 'B001', 'Kambing Etawa', 2, 2, 1909090, 20, 'Product-200712-88b1791df9.jpg', '2020-07-13 00:30:19', '2020-07-12 19:59:48'),
 (16, 'C001', 'Bakso', 2, 2, 10000, 12, 'default.png', '2020-07-13 01:03:26', '2020-07-12 20:14:46'),
 (20, 'A002', 'Haus!', 3, 6, 500000, 17, 'Product-200715-39fb7bd384.png', '2020-07-15 21:44:45', NULL),
-(21, 'A003', 'Nyoope', 3, 6, 500000, 0, 'Product-200715-cd99bd8a53.png', '2020-07-15 21:46:04', NULL),
+(21, 'A003', 'Nyoope', 3, 6, 500000, 10, 'Product-200715-cd99bd8a53.png', '2020-07-15 21:46:04', NULL),
 (22, 'A004', 'Durian Musang King', 2, 2, 1000000, 135, 'Product-200715-ed6f4517a5.png', '2020-07-15 21:49:18', NULL),
 (23, 'A007', 'Susu Kuda Liar', 3, 6, 250000, 12, 'default.png', '2020-07-16 01:14:08', NULL),
 (24, 'A008', 'Permen Kaki', 6, 4, 2000, 49, 'default.png', '2020-07-16 01:14:37', NULL);
@@ -165,12 +165,14 @@ CREATE TABLE `supplier` (
 --
 
 INSERT INTO `supplier` (`supplier_id`, `name`, `phone`, `address`, `desc`, `created`, `updated`) VALUES
-(1, 'Toko A', '0821222112', 'pati', 'Toko Sembako', '2020-07-10 15:02:28', NULL),
+(1, 'Toko KALI', '0821222112', 'pati', 'Toko Sembako', '2020-07-10 15:02:28', '2021-01-25 03:33:32'),
 (2, 'Toko ABC', '089271212', 'Klaten', 'Toko Kelontong', '2020-07-10 15:02:28', '2020-07-10 13:41:32'),
 (7, 'Haus!', '0821342142', 'Sawangan, Depok', 'Toko Minuman', '2020-07-15 21:52:07', NULL),
 (9, 'Toko Cak Lun', '08921212', 'Semarang', 'Toko Daging', '2020-07-15 21:53:00', NULL),
 (10, 'Toko C', '0821132323', 'Kalimanuk', '', '2020-07-16 01:10:59', NULL),
-(11, 'James', '1212121', 'Depok', 'Tukang Kopi', '2020-07-16 01:11:17', NULL);
+(11, 'James', '1212121', 'Depok', 'Tukang Kopi', '2020-07-16 01:11:17', NULL),
+(12, 'raldin', '0821132323', 'Depok', 'asd', '2021-01-28 16:18:26', NULL),
+(13, 'Toko Sawangan', '0821132323', 'Kalimanuk', 'Toko market', '2021-03-24 06:11:03', NULL);
 
 -- --------------------------------------------------------
 
@@ -229,7 +231,15 @@ INSERT INTO `t_sale` (`sale_id`, `invoice`, `customer_id`, `total_price`, `disco
 (14, 'MP2007200006', NULL, 10000, 500, 9500, 10000, 500, 'sama sama', '2020-07-20', 1, '2020-07-20 10:03:56'),
 (15, 'MP2007230001', NULL, 10000, 2000, 8000, 12000, 4000, 'okee', '2020-07-23', 1, '2020-07-23 21:30:08'),
 (16, 'MP2007230002', NULL, 10000, 2000, 8000, 12000, 4000, 'okee', '2020-07-23', 1, '2020-07-23 21:30:15'),
-(17, 'MP2007230003', NULL, 12000, 2500, 9500, 10000, 500, '', '2020-07-23', 1, '2020-07-23 21:31:00');
+(17, 'MP2007230003', NULL, 12000, 2500, 9500, 10000, 500, '', '2020-07-23', 1, '2020-07-23 21:31:00'),
+(18, 'MP2012200001', NULL, 10000, 0, 10000, 30000, 20000, 'sukses', '2020-12-20', 1, '2020-12-20 17:23:00'),
+(19, 'MP2012200002', NULL, 10000, 0, 10000, 30000, 20000, 'sukses', '2020-12-20', 1, '2020-12-20 17:23:19'),
+(20, 'MP2012200003', NULL, 10000, 0, 10000, 30000, 20000, 'sukses', '2020-12-20', 1, '2020-12-20 17:23:31'),
+(21, 'MP2012200004', NULL, 10000, 0, 10000, 50000, 40000, 'sukses', '2020-12-20', 1, '2020-12-20 17:24:03'),
+(22, 'MP2101280001', NULL, 520000, 0, 520000, 1000000, 480000, '', '2021-01-28', 1, '2021-01-28 16:35:19'),
+(23, 'MP2106080001', NULL, 1500000, 500000, 1000000, 1000000, 0, 'mantap', '2021-06-08', 1, '2021-06-08 08:18:51'),
+(24, 'MP2106080002', NULL, 1500000, 500000, 1000000, 1000000, 0, 'mantap', '2021-06-08', 1, '2021-06-08 08:19:16'),
+(25, 'MP2106080003', NULL, 1500000, 500000, 1000000, 1000000, 0, 'mantap', '2021-06-08', 1, '2021-06-08 08:19:29');
 
 -- --------------------------------------------------------
 
@@ -261,7 +271,10 @@ INSERT INTO `t_sale_detail` (`sale_id`, `item_id`, `price`, `qty`, `discount_ite
 (11, 16, 10000, 1, 0, 10000),
 (13, 16, 10000, 1, 0, 10000),
 (15, 24, 2000, 5, 0, 10000),
-(17, 24, 2000, 6, 0, 12000);
+(17, 24, 2000, 6, 0, 12000),
+(18, 13, 10000, 1, 0, 10000),
+(21, 13, 10000, 1, 0, 10000),
+(23, 20, 500000, 3, 0, 1500000);
 
 -- --------------------------------------------------------
 
@@ -300,7 +313,9 @@ INSERT INTO `t_stock` (`stock_id`, `item_id`, `type`, `detail`, `supplier_id`, `
 (21, 24, 'in', 'Sekarung', NULL, 15, '2020-07-20', '2020-07-20 11:48:44', 2),
 (22, 24, 'in', 'Borongan', 1, 12, '2020-07-20', '2020-07-20 14:27:23', 2),
 (23, 24, 'in', '', 1, 2, '2020-07-20', '2020-07-20 14:37:31', 2),
-(24, 23, 'in', '10 Kardus', NULL, 12, '2020-07-20', '2020-07-20 14:38:36', 2);
+(24, 23, 'in', '10 Kardus', NULL, 12, '2020-07-20', '2020-07-20 14:38:36', 2),
+(25, 21, 'in', 'Borongan', NULL, 10, '2020-11-16', '2020-11-16 07:19:27', 1),
+(26, 13, 'in', '', NULL, 12, '2020-11-16', '2020-11-16 08:35:42', 1);
 
 -- --------------------------------------------------------
 
@@ -441,19 +456,19 @@ ALTER TABLE `p_unit`
 -- AUTO_INCREMENT for table `supplier`
 --
 ALTER TABLE `supplier`
-  MODIFY `supplier_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `supplier_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT for table `t_sale`
 --
 ALTER TABLE `t_sale`
-  MODIFY `sale_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+  MODIFY `sale_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
 
 --
 -- AUTO_INCREMENT for table `t_stock`
 --
 ALTER TABLE `t_stock`
-  MODIFY `stock_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+  MODIFY `stock_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
 
 --
 -- AUTO_INCREMENT for table `user`

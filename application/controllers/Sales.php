@@ -17,8 +17,7 @@ class Sales extends CI_Controller
         $data['item'] = $this->item_m->get()->result();
         $data['cart'] = $this->sale_m->get_cart();
         $data['invoice'] = $this->sale_m->invoice_no();
-        // var_dump($data['cart']);
-        // die();
+        
         $this->template->load('template', 'transaction/sales/sales_form', $data);
     }
 
@@ -36,6 +35,20 @@ class Sales extends CI_Controller
                 $this->sale_m->add_cart($post);
             }
 
+            #Update Stock Item
+            $qty = $this->input->post('qty');
+
+            $get_item = $this->item_m->get($item_id)->row_array();
+            $stok = intval($get_item['stock'] - $qty);
+
+            $data = [
+                'stock' => $stok,
+                'updated' => date('Y-m-d H:i:s')
+            ];
+
+            $this->db->where('item_id', $item_id);
+            $this->db->update('p_item', $data);
+
             if ($this->db->affected_rows() > 0) {
                 $params = array("success" => true);
             } else {
@@ -43,6 +56,7 @@ class Sales extends CI_Controller
             }
             echo json_encode($params);
         }
+
         if (isset($_POST['process_payment'])) {
             $sale_id = $this->sale_m->add_sale($post);
             $cart = $this->sale_m->get_cart()->result();
@@ -84,6 +98,33 @@ class Sales extends CI_Controller
     public function update()
     {
         $post = $this->input->post();
+        $get_item = $this->item_m->get($post['cart_item'])->row_array();
+        $old_qty = $post['old_qty'];
+
+        if($old_qty > $post['item_qty']){
+            $stock_qty = $old_qty - $post['item_qty'];
+            $stok = intval($get_item['stock'] + $stock_qty);
+
+            $data = [
+                'stock' => $stok,
+                'updated' => date('Y-m-d H:i:s')
+            ];
+
+            $this->db->where('item_id', $post['cart_item']);
+            $this->db->update('p_item', $data);
+        }elseif ($old_qty < $post['item_qty']) {
+            $stock_qty = $post['item_qty'] - $old_qty;
+            $stok = intval($get_item['stock'] - $stock_qty);
+
+            $data = [
+                'stock' => $stok,
+                'updated' => date('Y-m-d H:i:s')
+            ];
+
+            $this->db->where('item_id', $post['cart_item']);
+            $this->db->update('p_item', $data);
+        }
+
         $this->sale_m->update_cart($post);
         $this->session->set_flashdata('pesan', 'Cart berhasil diupdate.');
         redirect('sales');
@@ -99,6 +140,21 @@ class Sales extends CI_Controller
     public function cart_del()
     {
         $cart_id = $this->input->post('cart_id');
+
+        #mengembalikan stok
+        $data = $this->sale_m->get($cart_id)->row_array();
+        $get_item = $this->item_m->get($data['item_id'])->row_array();
+        $stok = intval($get_item['stock'] + $data['qty']);
+
+        $stoks = [
+            'stock' => $stok,
+            'updated' => date('Y-m-d H:i:s')
+        ];
+
+        $this->db->where('item_id', $data['item_id']);
+        $this->db->update('p_item', $stoks);
+        
+        #delete cart
         $this->sale_m->del_cart(['cart_id' => $cart_id]);
 
         $this->session->set_flashdata('pesan', 'Cart berhasil di hapus!');

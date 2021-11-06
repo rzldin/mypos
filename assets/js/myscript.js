@@ -36,6 +36,7 @@ $(".tombol-hapus").on("click", function (e) {
 	}).then((result) => {
 		if (result.value) {
 			form.submit();
+			loadItem();
 		}
 	});
 });

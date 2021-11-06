@@ -125,12 +125,12 @@
                                 <p>Dashboard</p>
                             </a>
                         </li>
-                        <li class="nav-item">
+<!--                         <li class="nav-item">
                             <a href="<?= site_url('supplier') ?>" class="nav-link <?= $this->uri->segment(1) == 'supplier' ? 'active' : '' ?>">
                                 <i class="fas fa-truck nav-icon"></i>
                                 <p>Supliers</p>
                             </a>
-                        </li>
+                        </li> -->
                         <li class="nav-item">
                             <a href="<?= site_url('customer') ?>" class="nav-link" <?= $this->uri->segment(1) == 'customer' ? 'active' : '' ?>>
                                 <i class="fas fa-users nav-icon"></i>
@@ -195,8 +195,8 @@
                             </li>
                         </ul>
                     </li>
-                    <li class="nav-item has-treeview <?= $this->uri->segment(2) == 'sale_report' || $this->uri->segment(2) == 'stock_report' ? 'menu-open' : '' ?>">
-                        <a href="#" class="nav-link <?= $this->uri->segment(2) == 'sale_report' || $this->uri->segment(2) == 'stock_report' ? 'active' : '' ?>">
+                    <li class="nav-item has-treeview <?= $this->uri->segment(2) == 'sale_report' || $this->uri->segment(2) == 'stock_report' || $this->uri->segment(2) == 'report_sale' ? 'menu-open' : '' ?>">
+                        <a href="#" class="nav-link <?= $this->uri->segment(2) == 'sale_report' || $this->uri->segment(2) == 'stock_report' || $this->uri->segment(2) == 'report_sale' ? 'active' : '' ?>">
                             <i class="nav-icon fas fa-chart-pie"></i>
                             <p>
                                 Reports
@@ -214,6 +214,12 @@
                                 <a href="<?= site_url('reports/stock_report') ?>" class="nav-link <?= $this->uri->segment(2) == 'stock_report' ? 'active' : '' ?>">
                                     <i class="far fa-circle nav-icon"></i>
                                     <p>Stocks</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="<?= site_url('reports/report_sale') ?>" class="nav-link <?= $this->uri->segment(2) == 'report_sale' ? 'active' : '' ?>">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Laporan</p>
                                 </a>
                             </li>
                         </ul>

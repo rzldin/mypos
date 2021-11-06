@@ -50,7 +50,6 @@
         }
     </style>
 </head>
-
 <body onload="window.print()">
     <div class="content">
         <div class="title">
@@ -80,7 +79,7 @@
                     <td>Customer</td>
                     <td style="text-align: center;">:</td>
                     <td style="text-align: right;">
-                        <?= $sale->customer_id != null ? $sale->customer_id : "Umum" ?>
+                        <?= $sale->customer_id != null ? $sale->customer_name : "Umum" ?>
                     </td>
                 </tr>
             </table>
@@ -91,7 +90,7 @@
                 <?php $arr_discount = [];
                 foreach ($sale_detail as $sd) { ?>
                     <tr>
-                        <td style="width: 165px;"><?= $sd->name; ?></td>
+                        <td style="width: 165px;"><?= $sd->item_name; ?></td>
                         <td><?= $sd->qty; ?></td>
                         <td style="text-align: right;width:60px;"><?= indo_currency($sd->price); ?></td>
                         <td style="text-align: right;width:60px;">

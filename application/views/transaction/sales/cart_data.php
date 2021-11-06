@@ -56,6 +56,7 @@ if ($cart->num_rows() > 0) {
                         <input type="text" id="product_name" class="form-control" readonly>
                         <input type="hidden" name="cart_id" id="cart_id">
                         <input type="hidden" name="cart_item" id="cart_item">
+                        <input type="hidden" name="old_qty" id="old_qty">
                     </div>
                     <div class="form-row">
                         <label for="item_price">Price</label>
@@ -108,11 +109,11 @@ if ($cart->num_rows() > 0) {
                 $('#item_total').val(result['total']);
                 $('#cart_id').val(result['cart_id']);
                 $('#cart_item').val(result['cart_item']);
+                $('#old_qty').val(result['qty']);
 
                 $("#itemEdit").modal('show', {
                     backdrop: 'true'
                 });
-                //console.log(result);
             }
         })
     }
@@ -121,5 +122,6 @@ if ($cart->num_rows() > 0) {
         $('#formku').attr("action", "<?= site_url('sales/update') ?>");
         $('#formku').submit();
         calculate()
+        loadItem()
     }
 </script>

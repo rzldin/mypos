@@ -56,7 +56,8 @@
                                 <td align="center">
                                     <a class="btn btn-default btn-sm" onclick="showDetail(<?= $s->sale_id; ?>)"><i class=" fa fa-eye"></i>
                                     </a>
-                                    <a href="javascript:;" onclick="printSale(<?= $s->sale_id; ?>)" style="text-decoration: none;" class="btn btn-danger btn-sm"><i class="fa fa-print"></i></a>
+                                    <!-- <a href="javascript:;" onclick="printSale(<?= $s->sale_id; ?>)" style="text-decoration: none;" class="btn btn-danger btn-sm"><i class="fa fa-print"></i></a> -->
+                                    <a href="<?= site_url('reports/print_report/' . $s->sale_id); ?>" target="_blank" class="btn btn-danger btn-sm"><i class="fa fa-print"></i></a>
                                 </td>
                             </tr>
                         <?php } ?>
@@ -132,7 +133,7 @@
             dataType: "json",
             success: function(result) {
                 // console.log(result)
-                $('#item_name').text(result['name']);
+                $('#item_name').text(result['item_name']);
                 $('#price').text(result['price']);
                 $('#qty').text(result['qty']);
                 $('#disc').text(result['discount_item']);

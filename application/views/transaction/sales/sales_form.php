@@ -266,8 +266,8 @@
                                 <th>Action</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <?php foreach ($item as $i) { ?>
+                        <tbody id="tblItem">
+                           <!--  <?php foreach ($item as $i) { ?>
                                 <tr>
                                     <td><?= $i->barcode; ?></td>
                                     <td><?= $i->name; ?></td>
@@ -280,7 +280,7 @@
                                         </button>
                                     </td>
                                 </tr>
-                            <?php } ?>
+                            <?php } ?> -->
                         </tbody>
                     </table>
                 </div>
@@ -291,6 +291,7 @@
 <script>
     $(document).ready(function() {
         calculate()
+        loadItem()
     });
 
     $(document).on('click', '#select', function() {
@@ -301,6 +302,17 @@
         $('#modal-item').modal('hide')
     });
 
+    function cek_qty(val)
+    {
+        if(val > $('#stock').val()){
+            alert('Stock tidak mencukupi');
+            $('#item_id').val('');
+            $('#barcode').val('');
+            $('#barcode').focus();
+            $('#qty').val(1);
+        }
+    }
+
     $(document).on('click', '#add_cart', function() {
         var item_id = $('#item_id').val();
         var price = $('#price').val();
@@ -309,7 +321,7 @@
         if (item_id == '') {
             alert('Product belum dipilih');
             $('#barcode').focus();
-        } else if (stock < 1) {
+        } else if (parseInt(qty) > parseInt(stock)) {
             alert('Stock tidak mencukupi');
             $('#item_id').val('');
             $('#barcode').val('');
@@ -334,6 +346,7 @@
                         $('#barcode').val('');
                         $('#qty').val(1);
                         $('#barcode').focus();
+                        loadItem()
                     } else {
                         alert('Gagal tambah item cart');
                     }
@@ -402,9 +415,11 @@
                     success: function(result) {
                         if (result.success == true) {
                             console.log('Print.......')
+
                             alert('Berhasil melakukan transaksi')
                             window.open('<?= site_url('sales/cetak/') ?>' + result.sale_id,
                                 '_blank')
+                            location.reload();
                         } else {
                             alert('gagal melakukan transaksi');
                         }
@@ -440,6 +455,20 @@
 
         }
     });
+
+    function loadItem()
+    {
+         $.ajax({
+            url: "<?= site_url('item/get_data')?>",
+            type: "GET",
+            dataType: "json",
+            success: function(result) {
+                console.log(result)
+                // var final = JSON.parse(result);
+                $("#tblItem").html(result)
+            }
+        })
+    }
 
     function calculate() {
         var subtotal = 0;

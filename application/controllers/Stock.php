@@ -49,6 +49,7 @@ class Stock extends CI_Controller
                     'cluster' => 'ap1',
                     'useTLS' => true
                 );
+                
                 $pusher = new Pusher\Pusher(
                     'd4392a044ecee1cce52a',
                     '2ee60baddf74f9ad2925',
