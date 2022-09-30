@@ -15,7 +15,7 @@
 		"picqer/php-barcode-generator": "^2.0",
 		"endroid/qr-code-bundle": "^3.4",
 		"endroid/qr-code": "^3.9",
-		"dompdf/dompdf": "^0.8.5",
+		"dompdf/dompdf": "^2.0.1",
 		"pusher/pusher-php-server": "^4.1",
 		"symfony/http-kernel": "^5.2"
 	},
