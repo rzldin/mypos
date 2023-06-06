@@ -35,6 +35,9 @@ class ReflectionCaster
         'isVariadic' => 'isVariadic',
     ];
 
+    /**
+     * @return array
+     */
     public static function castClosure(\Closure $c, array $a, Stub $stub, bool $isNested, int $filter = 0)
     {
         $prefix = Caster::PREFIX_VIRTUAL;
@@ -42,7 +45,7 @@ class ReflectionCaster
 
         $a = static::castFunctionAbstract($c, $a, $stub, $isNested, $filter);
 
-        if (false === strpos($c->name, '{closure}')) {
+        if (!str_contains($c->name, '{closure}')) {
             $stub->class = isset($a[$prefix.'class']) ? $a[$prefix.'class']->value.'::'.$c->name : $c->name;
             unset($a[$prefix.'class']);
         }
@@ -71,6 +74,9 @@ class ReflectionCaster
         return $a;
     }
 
+    /**
+     * @return array
+     */
     public static function unsetClosureFileInfo(\Closure $c, array $a)
     {
         unset($a[Caster::PREFIX_VIRTUAL.'file'], $a[Caster::PREFIX_VIRTUAL.'line']);
@@ -78,12 +84,12 @@ class ReflectionCaster
         return $a;
     }
 
-    public static function castGenerator(\Generator $c, array $a, Stub $stub, bool $isNested)
+    public static function castGenerator(\Generator $c, array $a, Stub $stub, bool $isNested): array
     {
         // Cannot create ReflectionGenerator based on a terminated Generator
         try {
             $reflectionGenerator = new \ReflectionGenerator($c);
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             $a[Caster::PREFIX_VIRTUAL.'closed'] = true;
 
             return $a;
@@ -92,19 +98,34 @@ class ReflectionCaster
         return self::castReflectionGenerator($reflectionGenerator, $a, $stub, $isNested);
     }
 
+    /**
+     * @return array
+     */
     public static function castType(\ReflectionType $c, array $a, Stub $stub, bool $isNested)
     {
         $prefix = Caster::PREFIX_VIRTUAL;
 
-        $a += [
-            $prefix.'name' => $c instanceof \ReflectionNamedType ? $c->getName() : (string) $c,
-            $prefix.'allowsNull' => $c->allowsNull(),
-            $prefix.'isBuiltin' => $c->isBuiltin(),
-        ];
+        if ($c instanceof \ReflectionNamedType) {
+            $a += [
+                $prefix.'name' => $c instanceof \ReflectionNamedType ? $c->getName() : (string) $c,
+                $prefix.'allowsNull' => $c->allowsNull(),
+                $prefix.'isBuiltin' => $c->isBuiltin(),
+            ];
+        } elseif ($c instanceof \ReflectionUnionType || $c instanceof \ReflectionIntersectionType) {
+            $a[$prefix.'allowsNull'] = $c->allowsNull();
+            self::addMap($a, $c, [
+                'types' => 'getTypes',
+            ]);
+        } else {
+            $a[$prefix.'allowsNull'] = $c->allowsNull();
+        }
 
         return $a;
     }
 
+    /**
+     * @return array
+     */
     public static function castAttribute(\ReflectionAttribute $c, array $a, Stub $stub, bool $isNested)
     {
         self::addMap($a, $c, [
@@ -115,6 +136,9 @@ class ReflectionCaster
         return $a;
     }
 
+    /**
+     * @return array
+     */
     public static function castReflectionGenerator(\ReflectionGenerator $c, array $a, Stub $stub, bool $isNested)
     {
         $prefix = Caster::PREFIX_VIRTUAL;
@@ -135,7 +159,7 @@ class ReflectionCaster
             array_unshift($trace, [
                 'function' => 'yield',
                 'file' => $function->getExecutingFile(),
-                'line' => $function->getExecutingLine() - 1,
+                'line' => $function->getExecutingLine(),
             ]);
             $trace[] = $frame;
             $a[$prefix.'trace'] = new TraceStub($trace, false, 0, -1, -1);
@@ -150,6 +174,9 @@ class ReflectionCaster
         return $a;
     }
 
+    /**
+     * @return array
+     */
     public static function castClass(\ReflectionClass $c, array $a, Stub $stub, bool $isNested, int $filter = 0)
     {
         $prefix = Caster::PREFIX_VIRTUAL;
@@ -181,6 +208,9 @@ class ReflectionCaster
         return $a;
     }
 
+    /**
+     * @return array
+     */
     public static function castFunctionAbstract(\ReflectionFunctionAbstract $c, array $a, Stub $stub, bool $isNested, int $filter = 0)
     {
         $prefix = Caster::PREFIX_VIRTUAL;
@@ -188,7 +218,7 @@ class ReflectionCaster
         self::addMap($a, $c, [
             'returnsReference' => 'returnsReference',
             'returnType' => 'getReturnType',
-            'class' => 'getClosureScopeClass',
+            'class' => \PHP_VERSION_ID >= 80111 ? 'getClosureCalledClass' : 'getClosureScopeClass',
             'this' => 'getClosureThis',
         ]);
 
@@ -239,6 +269,9 @@ class ReflectionCaster
         return $a;
     }
 
+    /**
+     * @return array
+     */
     public static function castClassConstant(\ReflectionClassConstant $c, array $a, Stub $stub, bool $isNested)
     {
         $a[Caster::PREFIX_VIRTUAL.'modifiers'] = implode(' ', \Reflection::getModifierNames($c->getModifiers()));
@@ -249,6 +282,9 @@ class ReflectionCaster
         return $a;
     }
 
+    /**
+     * @return array
+     */
     public static function castMethod(\ReflectionMethod $c, array $a, Stub $stub, bool $isNested)
     {
         $a[Caster::PREFIX_VIRTUAL.'modifiers'] = implode(' ', \Reflection::getModifierNames($c->getModifiers()));
@@ -256,6 +292,9 @@ class ReflectionCaster
         return $a;
     }
 
+    /**
+     * @return array
+     */
     public static function castParameter(\ReflectionParameter $c, array $a, Stub $stub, bool $isNested)
     {
         $prefix = Caster::PREFIX_VIRTUAL;
@@ -280,20 +319,25 @@ class ReflectionCaster
             unset($a[$prefix.'allowsNull']);
         }
 
-        try {
-            $a[$prefix.'default'] = $v = $c->getDefaultValue();
-            if ($c->isDefaultValueConstant()) {
-                $a[$prefix.'default'] = new ConstStub($c->getDefaultValueConstantName(), $v);
+        if ($c->isOptional()) {
+            try {
+                $a[$prefix.'default'] = $v = $c->getDefaultValue();
+                if ($c->isDefaultValueConstant() && !\is_object($v)) {
+                    $a[$prefix.'default'] = new ConstStub($c->getDefaultValueConstantName(), $v);
+                }
+                if (null === $v) {
+                    unset($a[$prefix.'allowsNull']);
+                }
+            } catch (\ReflectionException) {
             }
-            if (null === $v) {
-                unset($a[$prefix.'allowsNull']);
-            }
-        } catch (\ReflectionException $e) {
         }
 
         return $a;
     }
 
+    /**
+     * @return array
+     */
     public static function castProperty(\ReflectionProperty $c, array $a, Stub $stub, bool $isNested)
     {
         $a[Caster::PREFIX_VIRTUAL.'modifiers'] = implode(' ', \Reflection::getModifierNames($c->getModifiers()));
@@ -304,6 +348,9 @@ class ReflectionCaster
         return $a;
     }
 
+    /**
+     * @return array
+     */
     public static function castReference(\ReflectionReference $c, array $a, Stub $stub, bool $isNested)
     {
         $a[Caster::PREFIX_VIRTUAL.'id'] = $c->getId();
@@ -311,6 +358,9 @@ class ReflectionCaster
         return $a;
     }
 
+    /**
+     * @return array
+     */
     public static function castExtension(\ReflectionExtension $c, array $a, Stub $stub, bool $isNested)
     {
         self::addMap($a, $c, [
@@ -327,6 +377,9 @@ class ReflectionCaster
         return $a;
     }
 
+    /**
+     * @return array
+     */
     public static function castZendExtension(\ReflectionZendExtension $c, array $a, Stub $stub, bool $isNested)
     {
         self::addMap($a, $c, [
@@ -339,6 +392,9 @@ class ReflectionCaster
         return $a;
     }
 
+    /**
+     * @return string
+     */
     public static function getSignature(array $a)
     {
         $prefix = Caster::PREFIX_VIRTUAL;
@@ -372,9 +428,11 @@ class ReflectionCaster
                 } elseif (\is_array($v)) {
                     $signature .= $v ? '[…'.\count($v).']' : '[]';
                 } elseif (\is_string($v)) {
-                    $signature .= 10 > \strlen($v) && false === strpos($v, '\\') ? "'{$v}'" : "'…".\strlen($v)."'";
+                    $signature .= 10 > \strlen($v) && !str_contains($v, '\\') ? "'{$v}'" : "'…".\strlen($v)."'";
                 } elseif (\is_bool($v)) {
                     $signature .= $v ? 'true' : 'false';
+                } elseif (\is_object($v)) {
+                    $signature .= 'new '.substr(strrchr('\\'.get_debug_type($v), '\\'), 1);
                 } else {
                     $signature .= $v;
                 }
@@ -389,7 +447,7 @@ class ReflectionCaster
         return $signature;
     }
 
-    private static function addExtra(array &$a, \Reflector $c)
+    private static function addExtra(array &$a, \Reflector $c): void
     {
         $x = isset($a[Caster::PREFIX_VIRTUAL.'extra']) ? $a[Caster::PREFIX_VIRTUAL.'extra']->value : [];
 
@@ -405,10 +463,10 @@ class ReflectionCaster
         }
     }
 
-    private static function addMap(array &$a, object $c, array $map, string $prefix = Caster::PREFIX_VIRTUAL)
+    private static function addMap(array &$a, object $c, array $map, string $prefix = Caster::PREFIX_VIRTUAL): void
     {
         foreach ($map as $k => $m) {
-            if (\PHP_VERSION_ID >= 80000 && 'isDisabled' === $k) {
+            if ('isDisabled' === $k) {
                 continue;
             }
 
@@ -420,10 +478,8 @@ class ReflectionCaster
 
     private static function addAttributes(array &$a, \Reflector $c, string $prefix = Caster::PREFIX_VIRTUAL): void
     {
-        if (\PHP_VERSION_ID >= 80000) {
-            foreach ($c->getAttributes() as $n) {
-                $a[$prefix.'attributes'][] = $n;
-            }
+        foreach ($c->getAttributes() as $n) {
+            $a[$prefix.'attributes'][] = $n;
         }
     }
 }

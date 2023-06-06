@@ -41,13 +41,13 @@ class Application extends BaseApplication
 
         $inputDefinition = $this->getDefinition();
         $inputDefinition->addOption(new InputOption('--env', '-e', InputOption::VALUE_REQUIRED, 'The Environment name.', $kernel->getEnvironment()));
-        $inputDefinition->addOption(new InputOption('--no-debug', null, InputOption::VALUE_NONE, 'Switches off debug mode.'));
+        $inputDefinition->addOption(new InputOption('--no-debug', null, InputOption::VALUE_NONE, 'Switch off debug mode.'));
     }
 
     /**
      * Gets the Kernel associated with this Console.
      *
-     * @return KernelInterface A KernelInterface instance
+     * @return KernelInterface
      */
     public function getKernel()
     {
@@ -109,7 +109,7 @@ class Application extends BaseApplication
     /**
      * {@inheritdoc}
      */
-    public function find($name)
+    public function find(string $name)
     {
         $this->registerCommands();
 
@@ -119,7 +119,7 @@ class Application extends BaseApplication
     /**
      * {@inheritdoc}
      */
-    public function get($name)
+    public function get(string $name)
     {
         $this->registerCommands();
 
@@ -135,7 +135,7 @@ class Application extends BaseApplication
     /**
      * {@inheritdoc}
      */
-    public function all($namespace = null)
+    public function all(string $namespace = null)
     {
         $this->registerCommands();
 
@@ -147,7 +147,7 @@ class Application extends BaseApplication
      */
     public function getLongVersion()
     {
-        return parent::getLongVersion().sprintf(' (env: <comment>%s</>, debug: <comment>%s</>)', $this->kernel->getEnvironment(), $this->kernel->isDebug() ? 'true' : 'false');
+        return parent::getLongVersion().sprintf(' (env: <comment>%s</>, debug: <comment>%s</>) <bg=#0057B7;fg=#FFDD00>#StandWith</><bg=#FFDD00;fg=#0057B7>Ukraine</> <href=https://sf.to/ukraine>https://sf.to/ukraine</>', $this->kernel->getEnvironment(), $this->kernel->isDebug() ? 'true' : 'false');
     }
 
     public function add(Command $command)

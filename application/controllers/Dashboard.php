@@ -13,12 +13,26 @@ class Dashboard extends CI_Controller
 
 	public function index()
 	{
-		$data['product'] = $this->sale_m->sale_detail()->result();
-		$data['item'] = $this->item_m->get()->result();
-		$data['supplier'] = $this->supplier_m->get()->result();
-		$data['user'] = $this->user_m->list()->result();
-		$data['customer'] = $this->customer_m->get()->result();
-		// var_dump($data['product']);
+		$data = [
+			'product' => 0,
+			'item' => 0,
+			'supplier' => 0,
+			'user' => 0,
+			'customer' => 0
+		];
+		try {
+			//code...
+			$data['product'] = @$this->sale_m->sale_detail()->result() ?? 0;
+			$data['item'] = @$this->item_m->get()->result() ?? 0;
+			$data['supplier'] = @$this->supplier_m->get()->result() ?? 0;
+			$data['user'] = @$this->user_m->list()->result() ?? 0;
+			$data['customer'] = @$this->customer_m->get()->result() ?? 0;
+			// var_dump($data['product']);
+		} catch (\Throwable $th) {
+			//throw $th;
+		}
+			// var_dump($data); die;
+
 		$this->template->load('template', 'dashboard', $data);
 	}
 }

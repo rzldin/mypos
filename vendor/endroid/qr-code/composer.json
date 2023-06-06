@@ -12,22 +12,22 @@
         }
     ],
     "require": {
-        "php": ">=7.2",
-        "ext-gd": "*",
+        "php": "^7.3||^8.0",
         "bacon/bacon-qr-code": "^2.0",
-        "khanamiryan/qrcode-detector-decoder": "^1.0.2",
+        "khanamiryan/qrcode-detector-decoder": "^1.0.5",
+        "myclabs/php-enum": "^1.5",
         "symfony/options-resolver": "^3.4||^4.4||^5.0",
-        "symfony/property-access": "^3.4||^4.4||^5.0",
-        "myclabs/php-enum": "^1.5"
+        "symfony/property-access": "^3.4||^4.4||^5.0"
     },
     "require-dev": {
-        "endroid/quality": "dev-master",
+        "endroid/quality": "^1.5.2",
         "setasign/fpdf": "^1.8"
     },
     "suggest": {
+        "ext-gd": "Required for generating PNG images",
         "roave/security-advisories": "Avoids installation of package versions with vulnerabilities",
-        "symfony/security-checker": "Checks your composer.lock for vulnerabilities",
-        "setasign/fpdf": "Required to use the FPDF writer."
+        "setasign/fpdf": "Required to use the FPDF writer.",
+        "symfony/security-checker": "Checks your composer.lock for vulnerabilities"
     },
     "autoload": {
         "psr-4": {
