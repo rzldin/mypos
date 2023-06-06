@@ -14,6 +14,8 @@ namespace Symfony\Bundle\FrameworkBundle\Command;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 use Symfony\Component\Config\Definition\Dumper\XmlReferenceDumper;
 use Symfony\Component\Config\Definition\Dumper\YamlReferenceDumper;
+use Symfony\Component\Console\Completion\CompletionInput;
+use Symfony\Component\Console\Completion\CompletionSuggestions;
 use Symfony\Component\Console\Exception\InvalidArgumentException;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -36,6 +38,7 @@ use Symfony\Component\Yaml\Yaml;
 class ConfigDumpReferenceCommand extends AbstractConfigCommand
 {
     protected static $defaultName = 'config:dump-reference';
+    protected static $defaultDescription = 'Dump the default configuration for an extension';
 
     /**
      * {@inheritdoc}
@@ -48,7 +51,7 @@ class ConfigDumpReferenceCommand extends AbstractConfigCommand
                 new InputArgument('path', InputArgument::OPTIONAL, 'The configuration option path'),
                 new InputOption('format', null, InputOption::VALUE_REQUIRED, 'The output format (yaml or xml)', 'yaml'),
             ])
-            ->setDescription('Dumps the default configuration for an extension')
+            ->setDescription(self::$defaultDescription)
             ->setHelp(<<<'EOF'
 The <info>%command.name%</info> command dumps the default configuration for an
 extension/bundle.
@@ -66,7 +69,7 @@ When the option is not provided, <comment>yaml</comment> is used.
 
 For dumping a specific option, add its path as second argument (only available for the yaml format):
 
-  <info>php %command.full_name% framework profiler.matcher</info>
+  <info>php %command.full_name% framework http_client.default_options</info>
 
 EOF
             )
@@ -96,7 +99,7 @@ EOF
 
             $errorIo->comment([
                 'Provide the name of a bundle as the first argument of this command to dump its default configuration. (e.g. <comment>config:dump-reference FrameworkBundle</comment>)',
-                'For dumping a specific option, add its path as the second argument of this command. (e.g. <comment>config:dump-reference FrameworkBundle profiler.matcher</comment> to dump the <comment>framework.profiler.matcher</comment> configuration)',
+                'For dumping a specific option, add its path as the second argument of this command. (e.g. <comment>config:dump-reference FrameworkBundle http_client.default_options</comment> to dump the <comment>framework.http_client.default_options</comment> configuration)',
             ]);
 
             return 0;
@@ -107,7 +110,7 @@ EOF
         if ($extension instanceof ConfigurationInterface) {
             $configuration = $extension;
         } else {
-            $configuration = $extension->getConfiguration([], $this->getContainerBuilder());
+            $configuration = $extension->getConfiguration([], $this->getContainerBuilder($this->getApplication()->getKernel()));
         }
 
         $this->validateConfiguration($extension, $configuration);
@@ -155,5 +158,33 @@ EOF
         $io->writeln(null === $path ? $dumper->dump($configuration, $extension->getNamespace()) : $dumper->dumpAtPath($configuration, $path));
 
         return 0;
+    }
+
+    public function complete(CompletionInput $input, CompletionSuggestions $suggestions): void
+    {
+        if ($input->mustSuggestArgumentValuesFor('name')) {
+            $suggestions->suggestValues($this->getAvailableBundles());
+        }
+
+        if ($input->mustSuggestOptionValuesFor('format')) {
+            $suggestions->suggestValues($this->getAvailableFormatOptions());
+        }
+    }
+
+    private function getAvailableBundles(): array
+    {
+        $bundles = [];
+
+        foreach ($this->getApplication()->getKernel()->getBundles() as $bundle) {
+            $bundles[] = $bundle->getName();
+            $bundles[] = $bundle->getContainerExtension()->getAlias();
+        }
+
+        return $bundles;
+    }
+
+    private function getAvailableFormatOptions(): array
+    {
+        return ['yaml', 'xml'];
     }
 }

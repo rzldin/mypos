@@ -28,6 +28,9 @@ final class CachePoolClearerCacheWarmer implements CacheWarmerInterface
     private $poolClearer;
     private $pools;
 
+    /**
+     * @param string[] $pools
+     */
     public function __construct(Psr6CacheClearer $poolClearer, array $pools = [])
     {
         $this->poolClearer = $poolClearer;
@@ -39,7 +42,7 @@ final class CachePoolClearerCacheWarmer implements CacheWarmerInterface
      *
      * @return string[]
      */
-    public function warmUp($cacheDirectory): array
+    public function warmUp(string $cacheDirectory): array
     {
         foreach ($this->pools as $pool) {
             if ($this->poolClearer->hasPool($pool)) {

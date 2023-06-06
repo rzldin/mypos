@@ -1,3 +1,4 @@
+
 <section class="content-header">
 	<div class="container-fluid">
 		<div class="row mb-2">
@@ -27,7 +28,7 @@
 
 					<div class="info-box-content">
 						<span class="info-box-text">Items</span>
-						<span class="info-box-number"><?= COUNT($item) ?></span>
+						<span class="info-box-number"><?= $item ?></span>
 					</div>
 					<!-- /.info-box-content -->
 				</div>
@@ -40,7 +41,7 @@
 
 					<div class="info-box-content">
 						<span class="info-box-text">Suppliers</span>
-						<span class="info-box-number"><?= COUNT($supplier) ?></span>
+						<span class="info-box-number"><?= $supplier ?></span>
 					</div>
 					<!-- /.info-box-content -->
 				</div>
@@ -57,7 +58,7 @@
 
 					<div class="info-box-content">
 						<span class="info-box-text">Customers</span>
-						<span class="info-box-number"><?= COUNT($customer); ?></span>
+						<span class="info-box-number"><?= $customer; ?></span>
 					</div>
 					<!-- /.info-box-content -->
 				</div>
@@ -71,7 +72,7 @@
 
 						<div class="info-box-content">
 							<span class="info-box-text">Users</span>
-							<span class="info-box-number"><?= COUNT($user); ?></span>
+							<span class="info-box-number"><?= $user; ?></span>
 						</div>
 						<!-- /.info-box-content -->
 					</div>
@@ -105,7 +106,8 @@
 								</tr>
 							</thead>
 							<tbody>
-								<?php foreach ($product as $p) { ?>
+								<?php if(@$product): 
+									foreach ($product as $p) { ?>
 									<tr>
 										<td>
 											<img src="<?= base_url('/uploads/product/' . $p->gambar); ?>" alt="Product 1" class="img-circle img-size-32 mr-2">
@@ -125,7 +127,9 @@
 											</a>
 										</td>
 									</tr>
-								<?php } ?>
+								<?php } 
+								endif;
+								?>
 							</tbody>
 						</table>
 					</div>

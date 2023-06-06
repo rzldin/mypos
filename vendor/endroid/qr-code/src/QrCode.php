@@ -14,6 +14,7 @@ namespace Endroid\QrCode;
 use BaconQrCode\Encoder\Encoder;
 use Endroid\QrCode\Exception\InvalidFontException;
 use Endroid\QrCode\Exception\UnsupportedExtensionException;
+use Endroid\QrCode\Exception\ValidationException;
 use Endroid\QrCode\Writer\WriterInterface;
 
 class QrCode implements QrCodeInterface
@@ -32,7 +33,7 @@ class QrCode implements QrCodeInterface
     /** @var int */
     private $margin = 10;
 
-    /** @var array */
+    /** @var array<int> */
     private $foregroundColor = [
         'r' => 0,
         'g' => 0,
@@ -40,7 +41,7 @@ class QrCode implements QrCodeInterface
         'a' => 0,
     ];
 
-    /** @var array */
+    /** @var array<int> */
     private $backgroundColor = [
         'r' => 255,
         'g' => 255,
@@ -79,7 +80,7 @@ class QrCode implements QrCodeInterface
 
     private $labelAlignment;
 
-    /** @var array */
+    /** @var array<string, int> */
     private $labelMargin = [
         't' => 0,
         'r' => 10,
@@ -93,7 +94,7 @@ class QrCode implements QrCodeInterface
     /** @var WriterInterface|null */
     private $writer;
 
-    /** @var array */
+    /** @var array<mixed> */
     private $writerOptions = [];
 
     /** @var bool */
@@ -139,6 +140,7 @@ class QrCode implements QrCodeInterface
         return $this->margin;
     }
 
+    /** @param array<int> $foregroundColor */
     public function setForegroundColor(array $foregroundColor): void
     {
         if (!isset($foregroundColor['a'])) {
@@ -157,6 +159,7 @@ class QrCode implements QrCodeInterface
         return $this->foregroundColor;
     }
 
+    /** @param array<int> $backgroundColor */
     public function setBackgroundColor(array $backgroundColor): void
     {
         if (!isset($backgroundColor['a'])) {
@@ -185,15 +188,28 @@ class QrCode implements QrCodeInterface
         return $this->encoding;
     }
 
-    public function setRoundBlockSize(bool $roundBlockSize, string $mode = self::ROUND_BLOCK_SIZE_MODE_MARGIN): void
+    public function setRoundBlockSize(bool $roundBlockSize, string $roundBlockSizeMode = self::ROUND_BLOCK_SIZE_MODE_MARGIN): void
     {
         $this->roundBlockSize = $roundBlockSize;
-        $this->roundBlockSizeMode = $mode;
+        $this->setRoundBlockSizeMode($roundBlockSizeMode);
     }
 
     public function getRoundBlockSize(): bool
     {
         return $this->roundBlockSize;
+    }
+
+    public function setRoundBlockSizeMode(string $roundBlockSizeMode): void
+    {
+        if (!in_array($roundBlockSizeMode, [
+            self::ROUND_BLOCK_SIZE_MODE_ENLARGE,
+            self::ROUND_BLOCK_SIZE_MODE_MARGIN,
+            self::ROUND_BLOCK_SIZE_MODE_SHRINK,
+        ])) {
+            throw new ValidationException('Invalid round block size mode: '.$roundBlockSizeMode);
+        }
+
+        $this->roundBlockSizeMode = $roundBlockSizeMode;
     }
 
     public function setErrorCorrectionLevel(ErrorCorrectionLevel $errorCorrectionLevel): void
@@ -242,6 +258,7 @@ class QrCode implements QrCodeInterface
         return $this->logoHeight;
     }
 
+    /** @param array<string, int> $labelMargin */
     public function setLabel(string $label, int $labelFontSize = null, string $labelFontPath = null, string $labelAlignment = null, array $labelMargin = null): void
     {
         $this->label = $label;
@@ -304,6 +321,7 @@ class QrCode implements QrCodeInterface
         return $this->labelAlignment->getValue();
     }
 
+    /** @param array<string, int> $labelMargin */
     public function setLabelMargin(array $labelMargin): void
     {
         $this->labelMargin = array_merge($this->labelMargin, $labelMargin);
@@ -337,6 +355,7 @@ class QrCode implements QrCodeInterface
         return $this->writerRegistry->getDefaultWriter();
     }
 
+    /** @param array<string, mixed> $writerOptions */
     public function setWriterOptions(array $writerOptions): void
     {
         $this->writerOptions = $writerOptions;
@@ -430,7 +449,7 @@ class QrCode implements QrCodeInterface
         $data['block_count'] = count($matrix[0]);
         $data['block_size'] = $this->size / $data['block_count'];
         if ($this->roundBlockSize) {
-            switch($this->roundBlockSizeMode) {
+            switch ($this->roundBlockSizeMode) {
                 case self::ROUND_BLOCK_SIZE_MODE_ENLARGE:
                     $data['block_size'] = intval(ceil($data['block_size']));
                     $this->size = $data['block_size'] * $data['block_count'];

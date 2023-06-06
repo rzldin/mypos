@@ -20,8 +20,6 @@ use Symfony\Component\Translation\Formatter\MessageFormatterInterface;
 use Symfony\Component\Translation\Translator as BaseTranslator;
 
 /**
- * Translator.
- *
  * @author Fabien Potencier <fabien@symfony.com>
  */
 class Translator extends BaseTranslator implements WarmableInterface
@@ -38,7 +36,7 @@ class Translator extends BaseTranslator implements WarmableInterface
     ];
 
     /**
-     * @var array
+     * @var list<string>
      */
     private $resourceLocales;
 
@@ -46,10 +44,13 @@ class Translator extends BaseTranslator implements WarmableInterface
      * Holds parameters from addResource() calls so we can defer the actual
      * parent::addResource() calls until initialize() is executed.
      *
-     * @var array
+     * @var array[]
      */
     private $resources = [];
 
+    /**
+     * @var string[][]
+     */
     private $resourceFiles;
 
     /**
@@ -102,7 +103,7 @@ class Translator extends BaseTranslator implements WarmableInterface
     {
         // skip warmUp when translator doesn't use cache
         if (null === $this->options['cache_dir']) {
-            return;
+            return [];
         }
 
         $localesToWarmUp = $this->enabledLocales ?: array_merge($this->getFallbackLocales(), [$this->getLocale()], $this->resourceLocales);
@@ -154,7 +155,7 @@ class Translator extends BaseTranslator implements WarmableInterface
         if ($this->resourceFiles) {
             $this->addResourceFiles();
         }
-        foreach ($this->resources as $key => $params) {
+        foreach ($this->resources as $params) {
             [$format, $resource, $locale, $domain] = $params;
             parent::addResource($format, $resource, $locale, $domain);
         }
@@ -167,13 +168,13 @@ class Translator extends BaseTranslator implements WarmableInterface
         }
     }
 
-    private function addResourceFiles()
+    private function addResourceFiles(): void
     {
         $filesByLocale = $this->resourceFiles;
         $this->resourceFiles = [];
 
-        foreach ($filesByLocale as $locale => $files) {
-            foreach ($files as $key => $file) {
+        foreach ($filesByLocale as $files) {
+            foreach ($files as $file) {
                 // filename is domain.locale.format
                 $fileNameParts = explode('.', basename($file));
                 $format = array_pop($fileNameParts);

@@ -138,7 +138,7 @@ class HeaderUtils
      * Decodes a quoted string.
      *
      * If passed an unquoted string that matches the "token" construct (as
-     * defined in the HTTP specification), it is passed through verbatimly.
+     * defined in the HTTP specification), it is passed through verbatim.
      */
     public static function unquote(string $s): string
     {
@@ -153,8 +153,6 @@ class HeaderUtils
      * @param string $filenameFallback A string containing only ASCII characters that
      *                                 is semantically equivalent to $filename. If the filename is already ASCII,
      *                                 it can be omitted, or just copied from $filename
-     *
-     * @return string A string suitable for use as a Content-Disposition field-value
      *
      * @throws \InvalidArgumentException
      *
@@ -176,12 +174,12 @@ class HeaderUtils
         }
 
         // percent characters aren't safe in fallback.
-        if (false !== strpos($filenameFallback, '%')) {
+        if (str_contains($filenameFallback, '%')) {
             throw new \InvalidArgumentException('The filename fallback cannot contain the "%" character.');
         }
 
         // path separators aren't allowed in either.
-        if (false !== strpos($filename, '/') || false !== strpos($filename, '\\') || false !== strpos($filenameFallback, '/') || false !== strpos($filenameFallback, '\\')) {
+        if (str_contains($filename, '/') || str_contains($filename, '\\') || str_contains($filenameFallback, '/') || str_contains($filenameFallback, '\\')) {
             throw new \InvalidArgumentException('The filename and the fallback cannot contain the "/" and "\\" characters.');
         }
 

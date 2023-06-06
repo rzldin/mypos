@@ -49,7 +49,9 @@ class KernelBrowser extends HttpKernelBrowser
      */
     public function getContainer()
     {
-        return $this->kernel->getContainer();
+        $container = $this->kernel->getContainer();
+
+        return $container->has('test.service_container') ? $container->get('test.service_container') : $container;
     }
 
     /**
@@ -65,15 +67,15 @@ class KernelBrowser extends HttpKernelBrowser
     /**
      * Gets the profile associated with the current Response.
      *
-     * @return HttpProfile|false|null A Profile instance
+     * @return HttpProfile|false|null
      */
     public function getProfile()
     {
-        if (null === $this->response || !$this->kernel->getContainer()->has('profiler')) {
+        if (null === $this->response || !$this->getContainer()->has('profiler')) {
             return false;
         }
 
-        return $this->kernel->getContainer()->get('profiler')->loadProfileFromResponse($this->response);
+        return $this->getContainer()->get('profiler')->loadProfileFromResponse($this->response);
     }
 
     /**
@@ -83,7 +85,7 @@ class KernelBrowser extends HttpKernelBrowser
      */
     public function enableProfiler()
     {
-        if ($this->kernel->getContainer()->has('profiler')) {
+        if ($this->getContainer()->has('profiler')) {
             $this->profiler = true;
         }
     }
@@ -109,8 +111,10 @@ class KernelBrowser extends HttpKernelBrowser
 
     /**
      * @param UserInterface $user
+     *
+     * @return $this
      */
-    public function loginUser($user, string $firewallContext = 'main'): self
+    public function loginUser(object $user, string $firewallContext = 'main'): self
     {
         if (!interface_exists(UserInterface::class)) {
             throw new \LogicException(sprintf('"%s" requires symfony/security-core to be installed.', __METHOD__));
@@ -120,14 +124,33 @@ class KernelBrowser extends HttpKernelBrowser
             throw new \LogicException(sprintf('The first argument of "%s" must be instance of "%s", "%s" provided.', __METHOD__, UserInterface::class, \is_object($user) ? \get_class($user) : \gettype($user)));
         }
 
-        $token = new TestBrowserToken($user->getRoles(), $user);
-        $token->setAuthenticated(true);
-        $session = $this->getContainer()->get('session');
+        $token = new TestBrowserToken($user->getRoles(), $user, $firewallContext);
+        // @deprecated since Symfony 5.4
+        if (method_exists($token, 'setAuthenticated')) {
+            $token->setAuthenticated(true, false);
+        }
+
+        $container = $this->getContainer();
+        $container->get('security.untracked_token_storage')->setToken($token);
+
+        if ($container->has('session.factory')) {
+            $session = $container->get('session.factory')->createSession();
+        } elseif ($container->has('session')) {
+            $session = $container->get('session');
+        } else {
+            return $this;
+        }
+
         $session->set('_security_'.$firewallContext, serialize($token));
         $session->save();
 
-        $cookie = new Cookie($session->getName(), $session->getId());
-        $this->getCookieJar()->set($cookie);
+        $domains = array_unique(array_map(function (Cookie $cookie) use ($session) {
+            return $cookie->getName() === $session->getName() ? $cookie->getDomain() : '';
+        }, $this->getCookieJar()->all())) ?: [''];
+        foreach ($domains as $domain) {
+            $cookie = new Cookie($session->getName(), $session->getId(), null, null, $domain);
+            $this->getCookieJar()->set($cookie);
+        }
 
         return $this;
     }
@@ -135,15 +158,16 @@ class KernelBrowser extends HttpKernelBrowser
     /**
      * {@inheritdoc}
      *
-     * @param Request $request A Request instance
+     * @param Request $request
      *
-     * @return Response A Response instance
+     * @return Response
      */
-    protected function doRequest($request)
+    protected function doRequest(object $request)
     {
         // avoid shutting down the Kernel if no request has been performed yet
         // WebTestCase::createClient() boots the Kernel but do not handle a request
         if ($this->hasPerformedRequest && $this->reboot) {
+            $this->kernel->boot();
             $this->kernel->shutdown();
         } else {
             $this->hasPerformedRequest = true;
@@ -153,7 +177,7 @@ class KernelBrowser extends HttpKernelBrowser
             $this->profiler = false;
 
             $this->kernel->boot();
-            $this->kernel->getContainer()->get('profiler')->enable();
+            $this->getContainer()->get('profiler')->enable();
         }
 
         return parent::doRequest($request);
@@ -162,11 +186,11 @@ class KernelBrowser extends HttpKernelBrowser
     /**
      * {@inheritdoc}
      *
-     * @param Request $request A Request instance
+     * @param Request $request
      *
-     * @return Response A Response instance
+     * @return Response
      */
-    protected function doRequestInProcess($request)
+    protected function doRequestInProcess(object $request)
     {
         $response = parent::doRequestInProcess($request);
 
@@ -183,11 +207,11 @@ class KernelBrowser extends HttpKernelBrowser
      * Symfony Standard Edition). If this is not your case, create your own
      * client and override this method.
      *
-     * @param Request $request A Request instance
+     * @param Request $request
      *
-     * @return string The script content
+     * @return string
      */
-    protected function getScript($request)
+    protected function getScript(object $request)
     {
         $kernel = var_export(serialize($this->kernel), true);
         $request = var_export(serialize($request), true);
@@ -195,7 +219,7 @@ class KernelBrowser extends HttpKernelBrowser
 
         $requires = '';
         foreach (get_declared_classes() as $class) {
-            if (0 === strpos($class, 'ComposerAutoloaderInit')) {
+            if (str_starts_with($class, 'ComposerAutoloaderInit')) {
                 $r = new \ReflectionClass($class);
                 $file = \dirname($r->getFileName(), 2).'/autoload.php';
                 if (is_file($file)) {
@@ -212,7 +236,11 @@ class KernelBrowser extends HttpKernelBrowser
 
         $profilerCode = '';
         if ($this->profiler) {
-            $profilerCode = '$kernel->getContainer()->get(\'profiler\')->enable();';
+            $profilerCode = <<<'EOF'
+$container = $kernel->getContainer();
+$container = $container->has('test.service_container') ? $container->get('test.service_container') : $container;
+$container->get('profiler')->enable();
+EOF;
         }
 
         $code = <<<EOF

@@ -83,22 +83,17 @@ abstract class AbstractSurrogateFragmentRenderer extends RoutableFragmentRendere
 
     private function generateSignedFragmentUri(ControllerReference $uri, Request $request): string
     {
-        if (null === $this->signer) {
-            throw new \LogicException('You must use a URI when using the ESI rendering strategy or set a URL signer.');
-        }
-
-        // we need to sign the absolute URI, but want to return the path only.
-        $fragmentUri = $this->signer->sign($this->generateFragmentUri($uri, $request, true));
-
-        return substr($fragmentUri, \strlen($request->getSchemeAndHttpHost()));
+        return (new FragmentUriGenerator($this->fragmentPath, $this->signer))->generate($uri, $request);
     }
 
     private function containsNonScalars(array $values): bool
     {
         foreach ($values as $value) {
-            if (\is_array($value)) {
-                return $this->containsNonScalars($value);
-            } elseif (!is_scalar($value) && null !== $value) {
+            if (\is_scalar($value) || null === $value) {
+                continue;
+            }
+
+            if (!\is_array($value) || $this->containsNonScalars($value)) {
                 return true;
             }
         }

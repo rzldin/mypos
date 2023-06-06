@@ -44,14 +44,14 @@ class Router extends BaseRouter implements WarmableInterface, ServiceSubscriberI
     {
         $this->container = $container;
         $this->resource = $resource;
-        $this->context = $context ?: new RequestContext();
+        $this->context = $context ?? new RequestContext();
         $this->logger = $logger;
         $this->setOptions($options);
 
         if ($parameters) {
-            $this->paramFetcher = [$parameters, 'get'];
+            $this->paramFetcher = \Closure::fromCallable([$parameters, 'get']);
         } elseif ($container instanceof SymfonyContainerInterface) {
-            $this->paramFetcher = [$container, 'getParameter'];
+            $this->paramFetcher = \Closure::fromCallable([$container, 'getParameter']);
         } else {
             throw new \LogicException(sprintf('You should either pass a "%s" instance or provide the $parameters argument of the "%s" method.', SymfonyContainerInterface::class, __METHOD__));
         }
@@ -130,15 +130,15 @@ class Router extends BaseRouter implements WarmableInterface, ServiceSubscriberI
 
             $schemes = [];
             foreach ($route->getSchemes() as $scheme) {
-                $schemes = array_merge($schemes, explode('|', $this->resolve($scheme)));
+                $schemes[] = explode('|', $this->resolve($scheme));
             }
-            $route->setSchemes($schemes);
+            $route->setSchemes(array_merge([], ...$schemes));
 
             $methods = [];
             foreach ($route->getMethods() as $method) {
-                $methods = array_merge($methods, explode('|', $this->resolve($method)));
+                $methods[] = explode('|', $this->resolve($method));
             }
-            $route->setMethods($methods);
+            $route->setMethods(array_merge([], ...$methods));
             $route->setCondition($this->resolve($route->getCondition()));
         }
     }
@@ -180,14 +180,16 @@ class Router extends BaseRouter implements WarmableInterface, ServiceSubscriberI
 
             $resolved = ($this->paramFetcher)($match[1]);
 
-            if (\is_bool($resolved)) {
-                $resolved = (string) (int) $resolved;
-            }
-
-            if (\is_string($resolved) || is_numeric($resolved)) {
+            if (\is_scalar($resolved)) {
                 $this->collectedParameters[$match[1]] = $resolved;
 
-                return (string) $this->resolve($resolved);
+                if (\is_string($resolved)) {
+                    $resolved = $this->resolve($resolved);
+                }
+
+                if (\is_scalar($resolved)) {
+                    return false === $resolved ? '0' : (string) $resolved;
+                }
             }
 
             throw new RuntimeException(sprintf('The container parameter "%s", used in the route configuration value "%s", must be a string or numeric, but it is of type "%s".', $match[1], $value, get_debug_type($resolved)));

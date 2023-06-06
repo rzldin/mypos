@@ -11,14 +11,17 @@
 
 namespace Symfony\Component\DependencyInjection\Loader\Configurator;
 
+use Symfony\Component\DependencyInjection\ServiceLocator;
 use Symfony\Component\Messenger\Bridge\AmazonSqs\Transport\AmazonSqsTransportFactory;
 use Symfony\Component\Messenger\Bridge\Amqp\Transport\AmqpTransportFactory;
 use Symfony\Component\Messenger\Bridge\Beanstalkd\Transport\BeanstalkdTransportFactory;
 use Symfony\Component\Messenger\Bridge\Redis\Transport\RedisTransportFactory;
 use Symfony\Component\Messenger\EventListener\AddErrorDetailsStampListener;
 use Symfony\Component\Messenger\EventListener\DispatchPcntlSignalListener;
+use Symfony\Component\Messenger\EventListener\ResetServicesListener;
 use Symfony\Component\Messenger\EventListener\SendFailedMessageForRetryListener;
 use Symfony\Component\Messenger\EventListener\SendFailedMessageToFailureTransportListener;
+use Symfony\Component\Messenger\EventListener\StopWorkerOnCustomStopExceptionListener;
 use Symfony\Component\Messenger\EventListener\StopWorkerOnRestartSignalListener;
 use Symfony\Component\Messenger\EventListener\StopWorkerOnSigtermSignalListener;
 use Symfony\Component\Messenger\Middleware\AddBusNameStampMiddleware;
@@ -26,6 +29,7 @@ use Symfony\Component\Messenger\Middleware\DispatchAfterCurrentBusMiddleware;
 use Symfony\Component\Messenger\Middleware\FailedMessageProcessingMiddleware;
 use Symfony\Component\Messenger\Middleware\HandleMessageMiddleware;
 use Symfony\Component\Messenger\Middleware\RejectRedeliveredMessageMiddleware;
+use Symfony\Component\Messenger\Middleware\RouterContextMiddleware;
 use Symfony\Component\Messenger\Middleware\SendMessageMiddleware;
 use Symfony\Component\Messenger\Middleware\TraceableMiddleware;
 use Symfony\Component\Messenger\Middleware\ValidationMiddleware;
@@ -100,8 +104,13 @@ return static function (ContainerConfigurator $container) {
                 service('debug.stopwatch'),
             ])
 
+        ->set('messenger.middleware.router_context', RouterContextMiddleware::class)
+            ->args([
+                service('router'),
+            ])
+
         // Discovery
-        ->set('messenger.receiver_locator')
+        ->set('messenger.receiver_locator', ServiceLocator::class)
             ->args([
                 [],
             ])
@@ -128,11 +137,15 @@ return static function (ContainerConfigurator $container) {
             ->tag('kernel.reset', ['method' => 'reset'])
 
         ->set('messenger.transport.sqs.factory', AmazonSqsTransportFactory::class)
+            ->args([
+                service('logger')->ignoreOnInvalid(),
+            ])
+            ->tag('monolog.logger', ['channel' => 'messenger'])
 
         ->set('messenger.transport.beanstalkd.factory', BeanstalkdTransportFactory::class)
 
         // retry
-        ->set('messenger.retry_strategy_locator')
+        ->set('messenger.retry_strategy_locator', ServiceLocator::class)
             ->args([
                 [],
             ])
@@ -163,7 +176,7 @@ return static function (ContainerConfigurator $container) {
 
         ->set('messenger.failure.send_failed_message_to_failure_transport_listener', SendFailedMessageToFailureTransportListener::class)
             ->args([
-                abstract_arg('failure transport'),
+                abstract_arg('failure transports'),
                 service('logger')->ignoreOnInvalid(),
             ])
             ->tag('kernel.event_subscriber')
@@ -181,7 +194,19 @@ return static function (ContainerConfigurator $container) {
             ->tag('monolog.logger', ['channel' => 'messenger'])
 
         ->set('messenger.listener.stop_worker_on_sigterm_signal_listener', StopWorkerOnSigtermSignalListener::class)
+            ->args([
+                service('logger')->ignoreOnInvalid(),
+            ])
             ->tag('kernel.event_subscriber')
+            ->tag('monolog.logger', ['channel' => 'messenger'])
+
+        ->set('messenger.listener.stop_worker_on_stop_exception_listener', StopWorkerOnCustomStopExceptionListener::class)
+            ->tag('kernel.event_subscriber')
+
+        ->set('messenger.listener.reset_services', ResetServicesListener::class)
+            ->args([
+                service('services_resetter'),
+            ])
 
         ->set('messenger.routable_message_bus', RoutableMessageBus::class)
             ->args([

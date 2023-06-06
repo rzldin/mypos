@@ -14,6 +14,7 @@ namespace Symfony\Bundle\FrameworkBundle\Console\Descriptor;
 use Symfony\Component\Console\Exception\LogicException;
 use Symfony\Component\Console\Exception\RuntimeException;
 use Symfony\Component\DependencyInjection\Alias;
+use Symfony\Component\DependencyInjection\Argument\AbstractArgument;
 use Symfony\Component\DependencyInjection\Argument\ArgumentInterface;
 use Symfony\Component\DependencyInjection\Argument\ServiceClosureArgument;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -66,7 +67,7 @@ class JsonDescriptor extends Descriptor
         $this->writeData($data, $options);
     }
 
-    protected function describeContainerService($service, array $options = [], ContainerBuilder $builder = null)
+    protected function describeContainerService(object $service, array $options = [], ContainerBuilder $builder = null)
     {
         if (!isset($options['id'])) {
             throw new \InvalidArgumentException('An "id" option must be provided.');
@@ -135,7 +136,7 @@ class JsonDescriptor extends Descriptor
 
     protected function describeEventDispatcherListeners(EventDispatcherInterface $eventDispatcher, array $options = [])
     {
-        $this->writeData($this->getEventDispatcherListenersData($eventDispatcher, \array_key_exists('event', $options) ? $options['event'] : null), $options);
+        $this->writeData($this->getEventDispatcherListenersData($eventDispatcher, $options), $options);
     }
 
     protected function describeCallable($callable, array $options = [])
@@ -145,7 +146,7 @@ class JsonDescriptor extends Descriptor
 
     protected function describeContainerParameter($parameter, array $options = [])
     {
-        $key = isset($options['parameter']) ? $options['parameter'] : '';
+        $key = $options['parameter'] ?? '';
 
         $this->writeData([$key => $parameter], $options);
     }
@@ -181,7 +182,15 @@ class JsonDescriptor extends Descriptor
 
     private function writeData(array $data, array $options)
     {
-        $flags = isset($options['json_encoding']) ? $options['json_encoding'] : 0;
+        $flags = $options['json_encoding'] ?? 0;
+
+        // Recursively search for enum values, so we can replace it
+        // before json_encode (which will not display anything for \UnitEnum otherwise)
+        array_walk_recursive($data, static function (&$value) {
+            if ($value instanceof \UnitEnum) {
+                $value = ltrim(var_export($value, true), '\\');
+            }
+        });
 
         $this->write(json_encode($data, $flags | \JSON_PRETTY_PRINT)."\n");
     }
@@ -236,7 +245,7 @@ class JsonDescriptor extends Descriptor
                 if ($factory[0] instanceof Reference) {
                     $data['factory_service'] = (string) $factory[0];
                 } elseif ($factory[0] instanceof Definition) {
-                    throw new \InvalidArgumentException('Factory is not describable.');
+                    $data['factory_service'] = sprintf('inline factory service (%s)', $factory[0]->getClass() ?? 'class not configured');
                 } else {
                     $data['factory_class'] = $factory[0];
                 }
@@ -274,18 +283,19 @@ class JsonDescriptor extends Descriptor
         ];
     }
 
-    private function getEventDispatcherListenersData(EventDispatcherInterface $eventDispatcher, string $event = null): array
+    private function getEventDispatcherListenersData(EventDispatcherInterface $eventDispatcher, array $options): array
     {
         $data = [];
+        $event = \array_key_exists('event', $options) ? $options['event'] : null;
 
-        $registeredListeners = $eventDispatcher->getListeners($event);
         if (null !== $event) {
-            foreach ($registeredListeners as $listener) {
+            foreach ($eventDispatcher->getListeners($event) as $listener) {
                 $l = $this->getCallableData($listener);
                 $l['priority'] = $eventDispatcher->getListenerPriority($event, $listener);
                 $data[] = $l;
             }
         } else {
+            $registeredListeners = \array_key_exists('events', $options) ? array_combine($options['events'], array_map(function ($event) use ($eventDispatcher) { return $eventDispatcher->getListeners($event); }, $options['events'])) : $eventDispatcher->getListeners();
             ksort($registeredListeners);
 
             foreach ($registeredListeners as $eventListened => $eventListeners) {
@@ -311,7 +321,7 @@ class JsonDescriptor extends Descriptor
                 $data['name'] = $callable[1];
                 $data['class'] = \get_class($callable[0]);
             } else {
-                if (0 !== strpos($callable[1], 'parent::')) {
+                if (!str_starts_with($callable[1], 'parent::')) {
                     $data['name'] = $callable[1];
                     $data['class'] = $callable[0];
                     $data['static'] = true;
@@ -329,7 +339,7 @@ class JsonDescriptor extends Descriptor
         if (\is_string($callable)) {
             $data['type'] = 'function';
 
-            if (false === strpos($callable, '::')) {
+            if (!str_contains($callable, '::')) {
                 $data['name'] = $callable;
             } else {
                 $callableParts = explode('::', $callable);
@@ -346,12 +356,12 @@ class JsonDescriptor extends Descriptor
             $data['type'] = 'closure';
 
             $r = new \ReflectionFunction($callable);
-            if (false !== strpos($r->name, '{closure}')) {
+            if (str_contains($r->name, '{closure}')) {
                 return $data;
             }
             $data['name'] = $r->name;
 
-            if ($class = $r->getClosureScopeClass()) {
+            if ($class = \PHP_VERSION_ID >= 80111 ? $r->getClosureCalledClass() : $r->getClosureScopeClass()) {
                 $data['class'] = $class->name;
                 if (!$r->getClosureThis()) {
                     $data['static'] = true;
@@ -391,6 +401,10 @@ class JsonDescriptor extends Descriptor
                 'type' => 'service',
                 'id' => (string) $value,
             ];
+        }
+
+        if ($value instanceof AbstractArgument) {
+            return ['type' => 'abstract', 'text' => $value->getText()];
         }
 
         if ($value instanceof ArgumentInterface) {
